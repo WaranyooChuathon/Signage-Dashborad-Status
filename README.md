@@ -6,7 +6,9 @@ English · **[ภาษาไทย](README-TH.md)**
 > **This is a live demo** running entirely on sample data, with no real database connection. It opens instantly, no login required.
 
 🔗 **Live Demo:** _<paste your Vercel URL here after deploy>_
+🔑 **Demo login:** click **"Enter Live Demo"**, or use `demo@smartsignage.app` / `demo1234`
 👤 **By:** Waranyoo Chuathon · [GitHub](https://github.com/WaranyooChuathon)
+📐 **Architecture:** see [ARCHITECTURE.md](ARCHITECTURE.md)
 
 ---
 
@@ -59,7 +61,9 @@ lib/supabase/*.ts    → return the mock client instead of the real one
 
 As a result the demo builds and runs with **no environment variables or secrets**, and never connects to a real database.
 
-## Run Locally
+Full design write-up: [ARCHITECTURE.md](ARCHITECTURE.md) · SQL: [schema.sql](supabase/schema.sql) · [functions.sql](supabase/functions.sql)
+
+## Run Locally (instant, mock mode)
 
 ```bash
 npm install
@@ -69,11 +73,35 @@ npm run dev
 
 No `.env` setup needed — everything runs on sample data.
 
+## Run with a real Supabase backend (full-stack mode)
+
+The app auto-switches to a real backend when Supabase env vars are present.
+
+1. Create a new Supabase project (your own — never the company's).
+2. In the SQL Editor, run [supabase/schema.sql](supabase/schema.sql) then [supabase/functions.sql](supabase/functions.sql).
+3. Create `.env.local`:
+   ```
+   NEXT_PUBLIC_SUPABASE_URL=https://xxxx.supabase.co
+   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=<anon key>
+   SUPABASE_SERVICE_ROLE_KEY=<service_role key>
+   ```
+4. Seed data + create the demo user:
+   ```bash
+   npx tsx scripts/seed.ts
+   npx tsx scripts/create-demo-user.ts
+   ```
+5. `npm run dev` → real auth + RPC + Postgres.
+
 ## Deploy (Vercel)
 
 1. Push this repo to your own GitHub.
 2. Import it into [Vercel](https://vercel.com/new) → framework preset = Next.js.
-3. Click Deploy (no env vars required).
+3. Add the 3 env vars above in **Project Settings → Environment Variables**.
+4. In Supabase → **Authentication → URL Configuration**, add your Vercel domain to the allowed/redirect URLs.
+5. Deploy.
+
+> Without env vars Vercel still deploys fine — it just runs in mock mode.
+> Note: Supabase free tier pauses when idle, so the first load after a while may be slow.
 
 ---
 

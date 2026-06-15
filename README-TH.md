@@ -6,7 +6,9 @@
 > **เวอร์ชันนี้คือ Live Demo** ใช้ข้อมูลตัวอย่างทั้งหมด ไม่เชื่อมต่อฐานข้อมูลจริง เปิดเล่นได้ทันทีโดยไม่ต้องล็อกอิน
 
 🔗 **Live Demo:** _<ใส่ลิงก์ Vercel ของคุณที่นี่หลัง deploy>_
+🔑 **Demo login:** กดปุ่ม **"เข้าชม Live Demo"** หรือใช้ `demo@smartsignage.app` / `demo1234`
 👤 **โดย:** Waranyoo Chuathon · [GitHub](https://github.com/WaranyooChuathon)
+📐 **Architecture:** ดู [ARCHITECTURE.md](ARCHITECTURE.md)
 
 ---
 
@@ -59,7 +61,9 @@ lib/supabase/*.ts    → คืน mock client แทน client จริง
 
 ผลคือ demo build และรันได้โดย **ไม่ต้องมี environment variable หรือ secret ใด ๆ** และไม่มีการเชื่อมต่อฐานข้อมูลจริง
 
-## รันบนเครื่อง
+เอกสารออกแบบเต็ม: [ARCHITECTURE.md](ARCHITECTURE.md) · SQL: [schema.sql](supabase/schema.sql) · [functions.sql](supabase/functions.sql)
+
+## รันบนเครื่อง (โหมด mock — ทันที)
 
 ```bash
 npm install
@@ -69,11 +73,34 @@ npm run dev
 
 ไม่ต้องตั้งค่า `.env` ใด ๆ — ทุกอย่างทำงานด้วยข้อมูลตัวอย่าง
 
+## รันแบบต่อ Supabase จริง (โหมด full-stack)
+
+แอปสลับไปใช้ backend จริงอัตโนมัติเมื่อมี Supabase env
+
+1. สร้าง Supabase project ใหม่ (ของคุณเอง — ห้ามใช้ของบริษัท)
+2. ใน SQL Editor รัน [supabase/schema.sql](supabase/schema.sql) แล้วตามด้วย [supabase/functions.sql](supabase/functions.sql)
+3. สร้าง `.env.local`:
+   ```
+   NEXT_PUBLIC_SUPABASE_URL=https://xxxx.supabase.co
+   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=<anon key>
+   SUPABASE_SERVICE_ROLE_KEY=<service_role key>
+   ```
+4. seed ข้อมูล + สร้าง demo user:
+   ```bash
+   npx tsx scripts/seed.ts
+   npx tsx scripts/create-demo-user.ts
+   ```
+5. `npm run dev` → auth + RPC + Postgres จริง
+
 ## Deploy (Vercel)
 
 1. push repo นี้ขึ้น GitHub ของคุณ
 2. import เข้า [Vercel](https://vercel.com/new) → framework preset = Next.js
-3. กด Deploy ได้เลย (ไม่ต้องตั้ง env)
+3. ใส่ env 3 ตัวด้านบนใน **Project Settings → Environment Variables**
+4. ใน Supabase → **Authentication → URL Configuration** เพิ่ม domain ของ Vercel ใน allowed/redirect URLs
+5. กด Deploy
+
+> ไม่ใส่ env ก็ deploy ได้ (จะรันโหมด mock) · Supabase free tier จะ pause ตอนไม่ใช้งาน → first load อาจช้า
 
 ---
 

@@ -21,16 +21,15 @@
   - ✅ verified: /dashboard ไม่มี session → 307 /login; ปุ่ม demo login สำเร็จ (sidebar โชว์ demo user)
 - [x] **T6** API routes env-toggle (`users/create` real/mock) + user-modal create env-aware
   - ✅ verified: build ผ่าน real mode (routes เป็น dynamic)
-- [~] **Checkpoint C** — ⚠️ ติดที่ **RPC functions ยังไม่ถูกสร้างใน DB** (ทั้ง 4 ตัว 404)
-      → **ต้องรัน `supabase/functions.sql` ใน SQL Editor** (อัปเดตเป็น SECURITY DEFINER แล้ว)
-      หลังรัน dashboard จะมีข้อมูลจาก DB จริงทันที
+- [x] **Checkpoint C** ✅ — full-stack ครบ: รัน functions.sql แล้ว, RPC ทั้ง 4 คืนข้อมูลถูก,
+      dashboard ผ่าน browser โชว์ data จริง (29/5/34), auth + session ทำงาน
 
 ## Phase D — Deploy + polish
-- [ ] **T7** deploy Vercel + ตั้ง env (3 ตัว) + Supabase allowed URLs
+- [~] **T7** deploy Vercel + ตั้ง env (3 ตัว) + Supabase allowed URLs ⏳ รอคุณ (push GitHub + Vercel)
   - ✅ verify: URL public ใช้ backend จริง flow ครบ (incognito)
-- [ ] **T8** `ARCHITECTURE.md` + diagram, ลิงก์ SQL/RPC ใน README, demo credentials, ตรวจไม่มี secret หลุด
-  - ✅ verify: reviewer เข้าใจว่าเป็น full-stack จริง + ไม่มี `.env`/key ใน git
-- [ ] **Checkpoint D** — live + ปลอดภัย + เล่า full-stack ได้ครบ
+- [x] **T8** `ARCHITECTURE.md` + ลิงก์ SQL/RPC ใน README, demo credentials, ตรวจ secret
+  - ✅ verified: ไม่มี `.env`/JWT ใน git (เจอ eyJ แค่ใน package-lock = integrity hash)
+- [ ] **Checkpoint D** — live + ปลอดภัย + เล่า full-stack ได้ครบ (หลังคุณ deploy)
 
 ---
 **กฎ:** ห้ามแตะ `.env.local`/key ของบริษัท — ใช้ Supabase project ใหม่เท่านั้น
