@@ -102,7 +102,7 @@ as $$
     a.total_records,
     a.online_records,
     a.offline_records,
-    round(a.online_records::numeric / nullif(a.total_records, 0) * 100, 1)::double precision
+    round(a.online_records::numeric / nullif(a.total_records, 0) * 100, 1)::double precision as uptime_pct
   from agg a
   join latest l using (device_id)
   order by uptime_pct desc;
