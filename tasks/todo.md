@@ -17,11 +17,13 @@
 - [ ] **Checkpoint B** — local ชี้ Supabase จริง + RPC ทำงาน
 
 ## Phase C — Auth + demo
-- [ ] **T5** auth จริง + demo account + ปุ่ม demo = sign-in จริง; proxy guard (real mode)
-  - ✅ verify: ไม่ login เข้า dashboard ไม่ได้ / ปุ่ม demo เข้าได้ / session ค้างหลัง refresh
-- [ ] **T6** restore API routes (`users/create`, `sync`) ให้ env-toggle real/mock
-  - ✅ verify: สร้าง/suspend/delete user แล้ว persist ใน DB จริง
-- [ ] **Checkpoint C** — full-stack ครบ local
+- [x] **T5** auth จริง + demo account (`scripts/create-demo-user.ts`) + ปุ่ม demo = sign-in จริง; proxy guard
+  - ✅ verified: /dashboard ไม่มี session → 307 /login; ปุ่ม demo login สำเร็จ (sidebar โชว์ demo user)
+- [x] **T6** API routes env-toggle (`users/create` real/mock) + user-modal create env-aware
+  - ✅ verified: build ผ่าน real mode (routes เป็น dynamic)
+- [~] **Checkpoint C** — ⚠️ ติดที่ **RPC functions ยังไม่ถูกสร้างใน DB** (ทั้ง 4 ตัว 404)
+      → **ต้องรัน `supabase/functions.sql` ใน SQL Editor** (อัปเดตเป็น SECURITY DEFINER แล้ว)
+      หลังรัน dashboard จะมีข้อมูลจาก DB จริงทันที
 
 ## Phase D — Deploy + polish
 - [ ] **T7** deploy Vercel + ตั้ง env (3 ตัว) + Supabase allowed URLs

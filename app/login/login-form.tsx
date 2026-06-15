@@ -43,6 +43,24 @@ export default function LoginForm() {
     setTimeout(() => router.push('/dashboard'), 1200)
   }
 
+  async function handleDemo() {
+    setError('')
+    setSuccess('')
+    setLoading(true)
+    const supabase = createClient()
+    const { error: authError } = await supabase.auth.signInWithPassword({
+      email: 'demo@smartsignage.app',
+      password: 'demo1234',
+    })
+    if (authError) {
+      setError('ยังไม่ได้สร้าง demo user — รัน: npx tsx scripts/create-demo-user.ts')
+      setLoading(false)
+      return
+    }
+    setSuccess('เข้าสู่โหมด Demo สำเร็จ! กำลังพาไป Dashboard...')
+    setTimeout(() => router.push('/dashboard'), 800)
+  }
+
   return (
     <div className="login-page" data-theme="dark">
       {/* Background orbs */}
@@ -155,7 +173,8 @@ export default function LoginForm() {
             {/* Demo bypass */}
             <button
               type="button"
-              onClick={() => router.push('/dashboard')}
+              onClick={handleDemo}
+              disabled={loading}
               style={{
                 marginTop: 12, width: '100%', padding: '13px',
                 borderRadius: 12, border: '1px solid rgba(126,148,216,.5)',

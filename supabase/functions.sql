@@ -11,6 +11,8 @@
 create or replace function public.get_latest_status()
 returns setof public.device_logs
 language sql stable
+security definer
+set search_path = public
 as $$
   select distinct on (device_id) *
   from public.device_logs
@@ -21,6 +23,8 @@ $$;
 create or replace function public.get_online_summary(period text default 'today')
 returns table (online_count int, offline_count int, total int)
 language sql stable
+security definer
+set search_path = public
 as $$
   with latest as (
     select distinct on (device_id) active_status
@@ -38,6 +42,8 @@ $$;
 create or replace function public.get_device_trend(days_back int default 7)
 returns table (day text, online_count int, offline_count int)
 language sql stable
+security definer
+set search_path = public
 as $$
   with daily as (
     select distinct on (device_id, (scraped_timestamp::date))
@@ -70,6 +76,8 @@ returns table (
   uptime_pct      double precision
 )
 language sql stable
+security definer
+set search_path = public
 as $$
   with latest as (
     select distinct on (device_id) device_id, active_status as cur

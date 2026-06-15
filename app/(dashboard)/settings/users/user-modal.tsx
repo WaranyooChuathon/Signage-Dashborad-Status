@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { Eye, EyeOff, Shuffle } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { hasSupabaseEnv } from '@/lib/supabase/config'
 import type { Profile } from '@/types/database'
 
 function generatePassword(): string {
@@ -83,13 +84,26 @@ export default function UserModal({
         onSave()
       }
     } else {
-      // DEMO MODE — เพิ่ม user ลง mock store ฝั่ง client
-      const { error } = await supabase
-        .from('profiles')
-        .insert({ email, full_name: name, organization: org, role, status })
+      // real mode: สร้างผ่าน API (service_role สร้าง auth user + profile)
+      // mock mode: insert ลง mock store ฝั่ง client
+      let errMsg: string | null = null
+      if (hasSupabaseEnv) {
+        const res = await fetch('/api/users/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password, full_name: name, organization: org, role, status }),
+        })
+        const json = await res.json()
+        if (!res.ok || json.error) errMsg = json.error ?? 'เกิดข้อผิดพลาด'
+      } else {
+        const { error } = await supabase
+          .from('profiles')
+          .insert({ email, full_name: name, organization: org, role, status })
+        if (error) errMsg = error.message
+      }
 
-      if (error) {
-        showToast(error.message, 'error')
+      if (errMsg) {
+        showToast(errMsg, 'error')
       } else {
         try { await navigator.clipboard.writeText(password) } catch {}
         showToast(`สร้าง User สำเร็จ — รหัสผ่าน: ${password} (คัดลอกแล้ว)`, 'success')
