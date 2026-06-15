@@ -1,70 +1,80 @@
 # Smart Signage Dashboard — Live Demo
 
-> ระบบ monitor สถานะจอ digital signage แบบ real-time — ออกแบบและพัฒนาเป็น dashboard สำหรับทีม operations
-> **เวอร์ชันนี้คือ Live Demo** ใช้ข้อมูลตัวอย่างทั้งหมด ไม่เชื่อมต่อฐานข้อมูลจริง เปิดเล่นได้ทันทีโดยไม่ต้องล็อกอิน
+English · **[ภาษาไทย](README-TH.md)**
 
-🔗 **Live Demo:** _<ใส่ลิงก์ Vercel ของคุณที่นี่หลัง deploy>_
-👤 **โดย:** Waranyoo Chuathon · [GitHub](https://github.com/WaranyooChuathon)
+> A real-time monitoring dashboard for a digital signage network — built for an operations team.
+> **This is a live demo** running entirely on sample data, with no real database connection. It opens instantly, no login required.
+
+🔗 **Live Demo:** _<paste your Vercel URL here after deploy>_
+👤 **By:** Waranyoo Chuathon · [GitHub](https://github.com/WaranyooChuathon)
 
 ---
 
-## ภาพรวม
+## Screenshots
 
-Dashboard สำหรับติดตามสถานะเครือข่ายจอโฆษณาดิจิทัล (digital signage) หลายสิบจุดพร้อมกัน
-แสดง online/offline แบบ real-time, แนวโน้มย้อนหลัง, สถิติ uptime รายเครื่อง และระบบจัดการผู้ใช้
+![Dashboard](docs/02-dashboard.png)
 
-> 📸 _แนะนำให้ใส่ screenshot 2–3 รูปตรงนี้ (Dashboard, Reports, Dark/Light mode)_
+| Login Showcase | Reports |
+|:--:|:--:|
+| ![Login](docs/01-login.png) | ![Reports](docs/03-reports.png) |
+| **Device List + Side Panel** | **User Management** |
+| ![Devices](docs/04-devices.png) | ![Users](docs/05-users.png) |
 
-## ฟีเจอร์หลัก
+## Overview
 
-- **Dashboard** — KPI cards (online/offline/uptime rate), donut chart สรุปวันนี้, bar chart แนวโน้ม (วัน/สัปดาห์/เดือน/ปี), รายการอุปกรณ์ online/offline แบบ scroll + pagination
-- **Device List** — ตารางอุปกรณ์ทั้งหมด ค้นหา/กรองตามสถานะ + side panel รายละเอียดรายเครื่อง
-- **Reports** — กราฟ trend, อันดับ uptime % รายเครื่อง (sort สูง↔ต่ำ), ตารางสถิติ และ **Export CSV**
-- **User Management** — เพิ่ม/แก้ไข/ระงับ/ลบผู้ใช้ พร้อม role (Super Admin / Admin / Viewer) และ generate รหัสผ่าน
-- **Dark / Light mode** — สลับธีมได้ทั้งระบบผ่าน CSS variables
-- **Responsive** — ปรับ layout ตั้งแต่จอใหญ่ถึงมือถือ
+A dashboard for monitoring a network of dozens of digital-signage displays at once —
+showing live online/offline status, historical trends, per-device uptime statistics, and user management.
+
+## Features
+
+- **Dashboard** — KPI cards (online / offline / uptime rate), a today donut chart, a trend bar chart (day / week / month / year), and scrollable online & offline device lists with pagination.
+- **Device List** — full device table with search and status filtering, plus a detail side panel per device.
+- **Reports** — trend chart, per-device uptime ranking (sort high ↔ low), a statistics table, and **CSV export**.
+- **User Management** — create / edit / suspend / delete users with roles (Super Admin / Admin / Viewer) and password generation.
+- **Dark / Light mode** — system-wide theme toggle driven by CSS variables.
+- **Responsive** — adapts from wide desktop down to mobile.
 
 ## Tech Stack
 
-| ส่วน | เทคโนโลยี |
+| Layer | Technology |
 |------|-----------|
 | Framework | Next.js 16 (App Router) + React 19 + TypeScript |
-| Styling | CSS ล้วน (glassmorphism, deep navy) — ไม่ใช้ utility framework |
-| Charts | SVG ที่เขียน arc/path math เอง (donut, trend, overlay) |
+| Styling | Plain CSS (glassmorphism, deep navy) — no utility framework |
+| Charts | Hand-written SVG arc/path math (donut, trend, overlay) |
 | Icons / Fonts | lucide-react · Inter / Plus Jakarta Sans / JetBrains Mono |
 | Production data | Supabase (PostgreSQL + RPC functions) |
 | Deploy | Vercel |
 
-## สถาปัตยกรรมเรื่องข้อมูล (Production vs Demo)
+## Data Architecture (Production vs Demo)
 
-โปรเจกต์จริงดึงข้อมูลจาก Supabase ผ่าน RPC (`get_online_summary`, `get_device_trend`,
-`get_device_uptime`, `get_latest_status`) เวอร์ชัน demo นี้สลับชั้นข้อมูลออกมาเป็น **mock layer**
-โดยไม่แตะ UI/logic ของหน้าใด ๆ เลย:
+The production app pulls data from Supabase via RPC (`get_online_summary`, `get_device_trend`,
+`get_device_uptime`, `get_latest_status`). This demo swaps the data layer out for a **mock layer**
+without touching any page UI or logic:
 
 ```
-lib/mock/data.ts     → generate ข้อมูลตัวอย่าง deterministic (อุปกรณ์ 34 เครื่อง, trend, uptime, users)
-lib/mock/client.ts   → mock client ที่มี interface เหมือน supabase-js (rpc / from / auth)
-lib/supabase/*.ts    → คืน mock client แทน client จริง
+lib/mock/data.ts     → deterministic sample-data generators (34 devices, trends, uptime, users)
+lib/mock/client.ts   → a mock client mirroring the supabase-js interface (rpc / from / auth)
+lib/supabase/*.ts    → return the mock client instead of the real one
 ```
 
-ผลคือ demo build และรันได้โดย **ไม่ต้องมี environment variable หรือ secret ใด ๆ** และไม่มีการเชื่อมต่อฐานข้อมูลจริง
+As a result the demo builds and runs with **no environment variables or secrets**, and never connects to a real database.
 
-## รันบนเครื่อง
+## Run Locally
 
 ```bash
 npm install
 npm run dev
-# เปิด http://localhost:3000
+# open http://localhost:3000
 ```
 
-ไม่ต้องตั้งค่า `.env` ใด ๆ — ทุกอย่างทำงานด้วยข้อมูลตัวอย่าง
+No `.env` setup needed — everything runs on sample data.
 
 ## Deploy (Vercel)
 
-1. push repo นี้ขึ้น GitHub ของคุณ
-2. import เข้า [Vercel](https://vercel.com/new) → framework preset = Next.js
-3. กด Deploy ได้เลย (ไม่ต้องตั้ง env)
+1. Push this repo to your own GitHub.
+2. Import it into [Vercel](https://vercel.com/new) → framework preset = Next.js.
+3. Click Deploy (no env vars required).
 
 ---
 
-_เวอร์ชัน demo นี้ใช้ข้อมูลสมมติทั้งหมด สร้างขึ้นเพื่อแสดงผลงานเท่านั้น ไม่มีข้อมูลหรือการเชื่อมต่อกับระบบจริงขององค์กรใด_
+_This demo uses entirely fictional data and exists for portfolio purposes only. It contains no real data and no connection to any organization's live system._

@@ -250,8 +250,8 @@ function SignageIllustration() {
         <circle cx="64" cy="10" r="3" fill="#34d399" fillOpacity=".5" />
       </g>
 
-      <text x="95" y="224" textAnchor="middle" fontSize="8" fill="rgba(52,211,153,.55)" fontFamily="'JetBrains Mono',monospace">● NC-032 ONLINE</text>
-      <text x="270" y="200" textAnchor="middle" fontSize="8" fill="rgba(248,113,113,.45)" fontFamily="'JetBrains Mono',monospace">● NC-016 OFFLINE</text>
+      <text x="95" y="224" textAnchor="middle" fontSize="8" fill="rgba(52,211,153,.55)" fontFamily="'JetBrains Mono',monospace">● SG-032 ONLINE</text>
+      <text x="270" y="200" textAnchor="middle" fontSize="8" fill="rgba(248,113,113,.45)" fontFamily="'JetBrains Mono',monospace">● SG-016 OFFLINE</text>
     </svg>
   )
 }
