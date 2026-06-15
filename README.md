@@ -5,7 +5,7 @@ English · **[ภาษาไทย](README-TH.md)**
 > A real-time monitoring dashboard for a digital signage network — built for an operations team.
 > **This is a live demo** running entirely on sample data, with no real database connection. It opens instantly, no login required.
 
-🔗 **Live Demo:** _<paste your Vercel URL here after deploy>_
+🔗 **Live Demo:** https://signage-dashborad-status.vercel.app
 🔑 **Demo login:** click **"Enter Live Demo"**, or use `demo@smartsignage.app` / `demo1234`
 👤 **By:** Waranyoo Chuathon · [GitHub](https://github.com/WaranyooChuathon)
 📐 **Architecture:** see [ARCHITECTURE.md](ARCHITECTURE.md)

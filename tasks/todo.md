@@ -25,11 +25,11 @@
       dashboard ผ่าน browser โชว์ data จริง (29/5/34), auth + session ทำงาน
 
 ## Phase D — Deploy + polish
-- [~] **T7** deploy Vercel + ตั้ง env (3 ตัว) + Supabase allowed URLs ⏳ รอคุณ (push GitHub + Vercel)
-  - ✅ verify: URL public ใช้ backend จริง flow ครบ (incognito)
+- [x] **T7** deploy Vercel ✅ — https://signage-dashborad-status.vercel.app (real mode, env ครบ)
+  - ✅ verified: / และ /dashboard → 307 /login, demo login → dashboard มี data จริง (29/5/34)
 - [x] **T8** `ARCHITECTURE.md` + ลิงก์ SQL/RPC ใน README, demo credentials, ตรวจ secret
-  - ✅ verified: ไม่มี `.env`/JWT ใน git (เจอ eyJ แค่ใน package-lock = integrity hash)
-- [ ] **Checkpoint D** — live + ปลอดภัย + เล่า full-stack ได้ครบ (หลังคุณ deploy)
+  - ✅ verified: ไม่มี `.env`/JWT ใน git
+- [x] **Checkpoint D** ✅ — live + ปลอดภัย + เล่า full-stack ได้ครบ 🎉 จบงาน full-stack
 
 ---
 **กฎ:** ห้ามแตะ `.env.local`/key ของบริษัท — ใช้ Supabase project ใหม่เท่านั้น

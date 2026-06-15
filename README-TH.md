@@ -5,7 +5,7 @@
 > ระบบ monitor สถานะจอ digital signage แบบ real-time — ออกแบบและพัฒนาเป็น dashboard สำหรับทีม operations
 > **เวอร์ชันนี้คือ Live Demo** ใช้ข้อมูลตัวอย่างทั้งหมด ไม่เชื่อมต่อฐานข้อมูลจริง เปิดเล่นได้ทันทีโดยไม่ต้องล็อกอิน
 
-🔗 **Live Demo:** _<ใส่ลิงก์ Vercel ของคุณที่นี่หลัง deploy>_
+🔗 **Live Demo:** https://signage-dashborad-status.vercel.app
 🔑 **Demo login:** กดปุ่ม **"เข้าชม Live Demo"** หรือใช้ `demo@smartsignage.app` / `demo1234`
 👤 **โดย:** Waranyoo Chuathon · [GitHub](https://github.com/WaranyooChuathon)
 📐 **Architecture:** ดู [ARCHITECTURE.md](ARCHITECTURE.md)
