@@ -1,0 +1,237 @@
+/* ══════════════════════════════════════
+   DEVICE LIST PAGE
+   ══════════════════════════════════════ */
+
+.dl-layout {
+  display: flex;
+  gap: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* ── TABLE AREA ── */
+.dl-table-area {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0 0 80px;
+  transition: all .3s ease;
+}
+
+/* ── SUMMARY STRIP ── */
+.dl-summary {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+.dl-sum-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 20px;
+  border-radius: 14px;
+  background: #FFF;
+  border: 1px solid var(--line);
+  flex: 1;
+  box-shadow: var(--shadow-sm);
+}
+.dl-sum-dot {
+  width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+}
+.dl-sum-dot.all { background: var(--acc2); }
+.dl-sum-dot.on  { background: var(--on); box-shadow: 0 0 8px var(--on); }
+.dl-sum-dot.off { background: var(--off); }
+.dl-sum-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 22px; font-weight: 600; line-height: 1;
+}
+.all-text { color: var(--acc2); }
+.on-text  { color: var(--on); }
+.off-text { color: var(--off); }
+.dl-sum-label { font-size: 10px; color: var(--t3); margin-top: 2px; }
+
+/* ── TOOLBAR ── */
+.dl-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.dl-tab-count {
+  margin-left: 4px; opacity: .65;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+}
+.dl-clear-btn {
+  height: 30px; padding: 0 12px; border-radius: 8px;
+  border: 1px solid var(--line);
+  background: #FFF; color: var(--muted);
+  font-family: inherit; font-size: 11px; font-weight: 600;
+  cursor: pointer; transition: all .15s;
+  display: inline-flex; align-items: center;
+}
+.dl-clear-btn:hover { background: var(--bg-2); color: var(--ink-2); }
+
+/* ── SELECTED ROW ── */
+.dl-row-selected {
+  background: rgba(84,97,200,0.12) !important;
+}
+.dl-row-selected td:first-child {
+  border-left: 3px solid var(--acc);
+  padding-left: 13px;
+}
+
+/* ══════════════════════════════════════
+   SIDE PANEL
+   ══════════════════════════════════════ */
+.sp {
+  width: 0;
+  overflow: hidden;
+  transition: width .3s cubic-bezier(.22,.68,0,1.1);
+  flex-shrink: 0;
+  border-left: 0px solid var(--border);
+  position: relative;
+}
+.sp-open {
+  width: 360px;
+  border-left-width: 1px;
+  background: #FFF;
+  box-shadow: -4px 0 20px rgba(15,27,61,.08);
+}
+
+.sp-inner {
+  width: 360px;
+  padding: 24px 20px;
+  overflow-y: auto;
+  height: 100%;
+}
+
+/* header */
+.sp-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.sp-device-name { font-size: 17px; font-weight: 700; margin-bottom: 3px; }
+.sp-device-id {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; color: var(--t3);
+}
+.sp-close {
+  width: 30px; height: 30px; border-radius: 8px;
+  background: var(--glass); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; cursor: pointer; transition: all .15s;
+  flex-shrink: 0; color: var(--t2);
+}
+.sp-close:hover { background: var(--glass-h); color: var(--t1); }
+
+/* status chip */
+.sp-status {
+  display: inline-flex;
+  align-items: center; gap: 6px;
+  padding: 6px 14px; border-radius: 99px;
+  font-size: 11px; font-weight: 700;
+  margin-bottom: 18px;
+}
+.sp-on {
+  background: var(--on-bg); color: var(--on);
+  border: 1px solid rgba(52,211,153,.2);
+}
+.sp-off {
+  background: var(--off-bg); color: var(--off);
+  border: 1px solid rgba(248,113,113,.2);
+}
+.sp-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: currentColor;
+}
+.sp-dot-on { animation: sp-blink 2s ease-in-out infinite; }
+@keyframes sp-blink { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+/* info grid */
+.sp-grid {
+  display: flex; flex-direction: column;
+  border-radius: 12px; overflow: hidden;
+  border: 1px solid var(--line);
+  margin-bottom: 18px;
+}
+.sp-row {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: #FFF;
+  border-bottom: 1px solid var(--line-2);
+  transition: background .12s;
+}
+.sp-row:last-child { border-bottom: none; }
+.sp-row:hover { background: var(--bg-2); }
+.sp-key {
+  font-size: 10px; color: var(--t3); font-weight: 600;
+  letter-spacing: .5px; text-transform: uppercase;
+  flex-shrink: 0;
+}
+.sp-val {
+  font-size: 11px; font-weight: 500;
+  text-align: right; max-width: 200px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.sp-mono {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; color: var(--t2);
+}
+
+/* section title */
+.sp-section-title {
+  font-size: 10px; font-weight: 700; letter-spacing: .8px;
+  text-transform: uppercase; color: var(--t3);
+  margin: 16px 0 10px;
+}
+
+/* action buttons */
+.sp-actions { display: flex; flex-direction: column; gap: 8px; }
+.sp-action-btn {
+  width: 100%; padding: 11px; border-radius: 11px; border: none;
+  font-family: inherit; font-size: 12px; font-weight: 600;
+  cursor: pointer; transition: all .18s;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.sp-btn-primary {
+  background: linear-gradient(135deg, #3B6CFF, #1F3FA8);
+  color: #fff;
+  box-shadow: 0 8px 18px -8px rgba(59,108,255,.55);
+}
+.sp-btn-primary:hover { box-shadow: 0 10px 22px -8px rgba(59,108,255,.60); }
+.sp-btn-primary:active { transform: translateY(1px); }
+.sp-btn-ghost {
+  background: #FFF; color: var(--muted);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-sm);
+}
+.sp-btn-ghost:hover { background: var(--bg-2); color: var(--ink-2); }
+
+
+/* ══════════════════════════════════════
+   DARK MODE
+   ══════════════════════════════════════ */
+.dash-root.dark .dl-sum-item  { background: #111A3D; border-color: #1E2856; }
+.dash-root.dark .dl-clear-btn { background: #0E1633; border-color: #1E2856; }
+.dash-root.dark .dl-clear-btn:hover { background: rgba(92,134,255,.08); }
+
+.dash-root.dark .sp-open {
+  background: #111A3D;
+  border-left-color: #1E2856;
+  box-shadow: -4px 0 20px rgba(0,0,0,.45);
+}
+.dash-root.dark .sp-row       { background: #111A3D; border-bottom-color: #161E42; }
+.dash-root.dark .sp-row:hover { background: #0E1633; }
+.dash-root.dark .sp-close     { background: #0E1633; border-color: #1E2856; }
+.dash-root.dark .sp-close:hover { background: #18224D; }
+
+.dash-root.dark .sp-btn-ghost {
+  background: #0E1633;
+  border-color: #1E2856;
+}
+.dash-root.dark .sp-btn-ghost:hover { background: rgba(92,134,255,.08); }

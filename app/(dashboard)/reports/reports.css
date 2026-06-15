@@ -1,0 +1,130 @@
+/* ══════════════════════════════════════
+   REPORTS PAGE
+   ══════════════════════════════════════ */
+
+/* Range bar */
+.rp-range-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+.rp-export-btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  height: 36px; padding: 0 16px; border-radius: 10px;
+  border: 1px solid var(--line);
+  background: #FFF; color: var(--ink-2);
+  font-family: inherit; font-size: 12.5px; font-weight: 600;
+  cursor: pointer; transition: all .15s;
+  box-shadow: var(--shadow-sm);
+}
+.rp-export-btn:hover { background: var(--bg-2); border-color: #D0D8EE; }
+.rp-export-btn:active { transform: translateY(1px); }
+
+/* KPI grid — uses shared .kpi-grid from dashboard.css */
+
+/* Charts row */
+.rp-charts-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 18px;
+  align-items: stretch;
+}
+
+/* Both cards: flex column so children can fill height */
+.rp-charts-row .card {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Trend card: chart area fills remaining height, bars centered */
+.rp-trend-card .chart-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-left: 4px;
+  min-width: 0;
+}
+
+/* Uptime card: list fills remaining height */
+.rp-uptime-card .rp-uptime-list {
+  flex: 1;
+}
+
+/* Uptime bar list */
+.rp-uptime-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.rp-uptime-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 30px;
+}
+.rp-uptime-row-empty { pointer-events: none; }
+
+/* Rank number */
+.rp-up-rank {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--muted-2);
+  width: 18px;
+  text-align: right;
+  flex-shrink: 0;
+}
+.rp-up-name {
+  font-size: 11px; font-weight: 500;
+  width: 130px; overflow: hidden;
+  text-overflow: ellipsis; white-space: nowrap;
+  flex-shrink: 0;
+}
+.rp-up-track {
+  flex: 1; height: 8px; border-radius: 6px;
+  background: var(--bg-2);
+  border: 1px solid var(--line-2);
+  overflow: hidden;
+}
+.rp-up-fill {
+  height: 100%; border-radius: 99px;
+  transition: width .8s cubic-bezier(.22,.68,0,1.1);
+}
+.rp-up-pct {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; width: 40px;
+  text-align: right; flex-shrink: 0;
+}
+.rp-up-pct.hi  { color: var(--on); }
+.rp-up-pct.mid { color: var(--warn); }
+.rp-up-pct.lo  { color: var(--off); }
+
+/* Sort toggle button (uptime card header) */
+.rp-sort-btn {
+  display: inline-flex; align-items: center; gap: 4px;
+  height: 28px; padding: 0 10px; border-radius: 8px;
+  border: 1px solid var(--line); background: var(--bg-2);
+  color: var(--muted); font-family: inherit; font-size: 11px; font-weight: 600;
+  cursor: pointer; transition: all .15s; flex-shrink: 0;
+}
+.rp-sort-btn:hover { background: var(--bg); color: var(--brand); border-color: var(--brand); }
+
+/* Sortable table header */
+.rp-th-sort {
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+.rp-th-sort:hover { color: var(--brand); }
+
+/* Pct cell in table */
+.rp-pct-cell {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; font-weight: 600;
+}
+.rp-pct-cell.on   { color: var(--on); }
+.rp-pct-cell.warn { color: var(--warn); }
+.rp-pct-cell.off  { color: var(--off); }
