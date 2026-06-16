@@ -1,11 +1,15 @@
 'use client'
 
-import './login.css' 
+import './login.css'
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
+import { useLang } from '@/lib/i18n/language-provider'
+import { useTheme } from '@/components/dashboard/theme-provider'
 
 export default function LoginForm() {
+  const { t, lang, setLang } = useLang()
+  const { theme, toggleTheme } = useTheme()
   const [email, setEmail] = useState('demo@smartsignage.app')
   const [password, setPassword] = useState('demo1234')
   const [showPass, setShowPass] = useState(false)
@@ -20,7 +24,7 @@ export default function LoginForm() {
     setSuccess('')
 
     if (!email || !password) {
-      setError('กรุณากรอกอีเมลและรหัสผ่าน')
+      setError(t('login.errEmpty'))
       return
     }
 
@@ -33,13 +37,13 @@ export default function LoginForm() {
     })
 
     if (authError) {
-      setError('อีเมลหรือรหัสผ่านไม่ถูกต้อง')
+      setError(t('login.errAuth'))
       setPassword('')
       setLoading(false)
       return
     }
 
-    setSuccess('เข้าสู่ระบบสำเร็จ! กำลังพาไปหน้า Dashboard...')
+    setSuccess(t('login.success'))
     setTimeout(() => router.push('/dashboard'), 1200)
   }
 
@@ -53,220 +57,172 @@ export default function LoginForm() {
       password: 'demo1234',
     })
     if (authError) {
-      setError('ยังไม่ได้สร้าง demo user — รัน: npx tsx scripts/create-demo-user.ts')
+      setError(t('login.errNoDemo'))
       setLoading(false)
       return
     }
-    setSuccess('เข้าสู่โหมด Demo สำเร็จ! กำลังพาไป Dashboard...')
+    setSuccess(t('login.successDemo'))
     setTimeout(() => router.push('/dashboard'), 800)
   }
 
   return (
-    <div className="login-page" data-theme="dark">
-      {/* Background orbs */}
-      <div className="bg-canvas">
-        <div className="orb o1" />
-        <div className="orb o2" />
-        <div className="orb o3" />
-      </div>
+    <div className={`login-page${theme === 'dark' ? ' dark' : ''}`}>
+      {/* ── LEFT — visual panel (รูป isometric เต็มพาเนล) ── */}
+      <aside className="login-visual">
+        <div className="lv-image" role="img" aria-label="Smart Signage devices" />
+        <div className="lv-scrim" />
 
-      <div className="page-layout">
-        {/* ── LEFT PANEL ── */}
-        <div className="left-panel">
-          {/* Brand */}
-          <div className="brand">
-            <div className="brand-icon">📺</div>
-            <div>
-              <div className="brand-name">Smart Signage</div>
-              <div className="brand-sub">Aurora City — Live Demo</div>
-            </div>
-          </div>
-
-          {/* Center content */}
-          <div className="illus-block">
-            <div>
-              <h1 className="illus-headline">
-                ระบบจัดการ<br />
-                <em>จอโฆษณาดิจิทัล</em><br />
-                อัจฉริยะ
-              </h1>
-              <p className="illus-desc">
-                ติดตามสถานะอุปกรณ์ Signage ทั่วเมืองแบบ Real-time<br />
-                บริหารเนื้อหาและวิเคราะห์ผู้ชมด้วย AI ในที่เดียว
-              </p>
-            </div>
-
-            {/* SVG Illustration */}
-            <SignageIllustration />
-          </div>
-
-          {/* Footer */}
-          <div className="left-footer">
-            <span className="version-tag">v2.6.0 — 2026</span>
-            <div className="footer-links">
-              <span>เงื่อนไขการใช้งาน</span>
-              <span>ความเป็นส่วนตัว</span>
-              <span>ติดต่อ</span>
-            </div>
-          </div>
+        <div className="lv-brand">
+          <span className="lv-brand-icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="2.5" y="4" width="19" height="13" rx="2" />
+              <path d="M8 21h8M12 17v4" />
+            </svg>
+          </span>
+          <span className="lv-brand-text">
+            <span className="lv-brand-name">{t('login.brandName')}</span>
+            <span className="lv-brand-sub">{t('login.brandSub')}</span>
+          </span>
         </div>
 
-        {/* ── RIGHT PANEL ── */}
-        <div className="right-panel">
-          <form className="form-card" onSubmit={handleLogin}>
-            <h2 className="form-title">ยินดีต้อนรับ 👋</h2>
-            <p className="form-sub">เข้าสู่ระบบเพื่อจัดการ Smart Signage</p>
+        <div className="lv-copy">
+          <h1 className="lv-headline">
+            {t('login.headline')}<br />
+            <em>{t('login.headlineEm')}</em>
+          </h1>
+          <p className="lv-desc">{t('login.desc')}</p>
+        </div>
+      </aside>
 
-            {/* Error / Success */}
-            {error && <div className="msg error">❌ {error}</div>}
-            {success && <div className="msg success">✅ {success}</div>}
+      {/* ── RIGHT — form panel ── */}
+      <main className="login-form-wrap">
+        <div className="login-bg" aria-hidden="true" />
 
-            {/* Email */}
-            <div className="field">
-              <label className="field-label">อีเมล</label>
+        {/* Toggles: ภาษา + ธีม */}
+        <div className="login-toolbar">
+          <div className="login-langseg" role="group" aria-label="Language">
+            <button
+              type="button"
+              className={lang === 'th' ? 'active' : ''}
+              onClick={() => setLang('th')}
+            >TH</button>
+            <button
+              type="button"
+              className={lang === 'en' ? 'active' : ''}
+              onClick={() => setLang('en')}
+            >EN</button>
+          </div>
+          <button
+            type="button"
+            className="login-themebtn"
+            onClick={toggleTheme}
+            aria-label={theme === 'dark' ? t('login.toLight') : t('login.toDark')}
+            title={theme === 'dark' ? t('login.toLight') : t('login.toDark')}
+          >
+            {theme === 'dark' ? (
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="4.5" />
+                <path d="M12 2v2M12 20v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M2 12h2M20 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4" />
+              </svg>
+            ) : (
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z" />
+              </svg>
+            )}
+          </button>
+        </div>
+
+        <form className="login-card" onSubmit={handleLogin}>
+          <h2 className="lc-title">{t('login.welcome')}</h2>
+          <p className="lc-sub">{t('login.formSub')}</p>
+
+          {error && <div className="lc-msg err">{error}</div>}
+          {success && <div className="lc-msg ok">{success}</div>}
+
+          {/* Email */}
+          <label className="lc-field">
+            <span className="lc-label">{t('login.emailLabel')}</span>
+            <input
+              className="lc-input"
+              type="email"
+              placeholder="demo@smartsignage.app"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              autoComplete="email"
+            />
+          </label>
+
+          {/* Password */}
+          <label className="lc-field">
+            <span className="lc-label">{t('login.passwordLabel')}</span>
+            <div className="lc-input-wrap">
               <input
-                className="field-input"
-                type="email"
-                placeholder="demo@smartsignage.app"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                autoComplete="email"
-              />
-            </div>
-
-            {/* Password */}
-            <div className="field">
-              <label className="field-label">รหัสผ่าน</label>
-              <input
-                className="field-input"
+                className="lc-input"
                 type={showPass ? 'text' : 'password'}
                 placeholder="••••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 autoComplete="current-password"
               />
-              <span className="field-eye" onClick={() => setShowPass(!showPass)}>
-                {showPass ? '🙈' : '👁'}
-              </span>
+              <button
+                type="button"
+                className="lc-eye"
+                onClick={() => setShowPass(!showPass)}
+                aria-label={showPass ? t('login.hidePw') : t('login.showPw')}
+                title={showPass ? t('login.hidePw') : t('login.showPw')}
+              >
+                {showPass ? (
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M9.9 4.6A9.8 9.8 0 0 1 12 4.5c5 0 9 4.5 9 7.5a11 11 0 0 1-2.2 3.2M6.1 6.1C3.7 7.6 2 10 2 12c0 3 4 7.5 9 7.5 1.4 0 2.7-.3 3.9-.9M3 3l18 18M9.9 9.9a3 3 0 0 0 4.2 4.2" />
+                  </svg>
+                ) : (
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M2 12s4-7.5 10-7.5S22 12 22 12s-4 7.5-10 7.5S2 12 2 12Z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                )}
+              </button>
             </div>
+          </label>
 
-            {/* Remember */}
-            <div className="field-row">
-              <label className="remember">
-                <input type="checkbox" defaultChecked /> จดจำฉันไว้
-              </label>
-            </div>
+          {/* Remember */}
+          <div className="lc-row">
+            <label className="lc-remember">
+              <input type="checkbox" defaultChecked /> {t('login.remember')}
+            </label>
+          </div>
 
-            {/* Submit */}
-            <button
-              type="submit"
-              className={`btn-login ${loading ? 'loading' : ''}`}
-              disabled={loading}
-            >
-              {loading ? 'กำลังเข้าสู่ระบบ...' : 'เข้าสู่ระบบ'}
-            </button>
+          {/* Submit */}
+          <button
+            type="submit"
+            className={`lc-btn primary${loading ? ' loading' : ''}`}
+            disabled={loading}
+          >
+            {loading ? t('login.signingIn') : t('login.signIn')}
+          </button>
 
-            {/* Demo bypass */}
-            <button
-              type="button"
-              onClick={handleDemo}
-              disabled={loading}
-              style={{
-                marginTop: 12, width: '100%', padding: '13px',
-                borderRadius: 12, border: '1px solid rgba(126,148,216,.5)',
-                background: 'rgba(126,148,216,.12)', color: '#cdd6f4',
-                fontSize: 14, fontWeight: 600, cursor: 'pointer',
-              }}
-            >
-              🚀 เข้าชม Live Demo (ไม่ต้องล็อกอิน)
-            </button>
-            <p style={{
-              marginTop: 12, fontSize: 11, textAlign: 'center',
-              color: 'rgba(205,214,244,.55)', lineHeight: 1.6,
-            }}>
-              โหมดสาธิต · ข้อมูลทั้งหมดเป็นตัวอย่าง — ใส่อีเมล/รหัสผ่านอะไรก็เข้าได้
-            </p>
-          </form>
+          {/* Demo bypass */}
+          <button
+            type="button"
+            className="lc-btn demo"
+            onClick={handleDemo}
+            disabled={loading}
+          >
+            {t('login.demoBtn')}
+          </button>
+
+          <p className="lc-notice">{t('login.demoNotice')}</p>
+        </form>
+
+        <div className="login-foot">
+          <span className="login-ver">v2.6.0 — 2026</span>
+          <div className="login-foot-links">
+            <span>{t('login.terms')}</span>
+            <span>{t('login.privacy')}</span>
+            <span>{t('login.contact')}</span>
+          </div>
         </div>
-      </div>
+      </main>
     </div>
-  )
-}
-
-function SignageIllustration() {
-  return (
-    <svg className="mockup-svg" viewBox="0 0 440 230" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="scrDark" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#1a2d56" stopOpacity=".9" />
-          <stop offset="100%" stopColor="#0c1a3a" stopOpacity=".8" />
-        </linearGradient>
-        <linearGradient id="barG" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor="#34d399" />
-          <stop offset="100%" stopColor="#34d399" stopOpacity=".4" />
-        </linearGradient>
-        <linearGradient id="barR" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor="#f87171" />
-          <stop offset="100%" stopColor="#f87171" stopOpacity=".4" />
-        </linearGradient>
-        <filter id="glow">
-          <feGaussianBlur stdDeviation="3" result="blur" />
-          <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
-        </filter>
-      </defs>
-
-      {/* Device A — ONLINE */}
-      <g transform="translate(30,10)">
-        <rect x="0" y="0" width="130" height="210" rx="12" fill="#0a0e1c" stroke="rgba(30,58,110,0.7)" strokeWidth="1.5" />
-        <rect x="0" y="0" width="130" height="210" rx="12" fill="none" stroke="rgba(52,211,153,0.15)" strokeWidth="1" />
-        <rect x="8" y="8" width="114" height="160" rx="8" fill="url(#scrDark)" />
-        <rect x="14" y="14" width="102" height="7" rx="3" fill="rgba(84,97,200,.5)" />
-        <rect x="14" y="28" width="48" height="50" rx="7" fill="rgba(52,211,153,.08)" stroke="rgba(52,211,153,.25)" strokeWidth=".8" />
-        <text x="38" y="48" textAnchor="middle" fontFamily="'JetBrains Mono',monospace" fontSize="18" fill="#34d399" filter="url(#glow)">24</text>
-        <text x="38" y="63" textAnchor="middle" fontSize="7" fill="rgba(52,211,153,.7)">Online</text>
-        <rect x="68" y="28" width="48" height="50" rx="7" fill="rgba(248,113,113,.07)" stroke="rgba(248,113,113,.22)" strokeWidth=".8" />
-        <text x="92" y="48" textAnchor="middle" fontFamily="'JetBrains Mono',monospace" fontSize="18" fill="#f87171">3</text>
-        <text x="92" y="63" textAnchor="middle" fontSize="7" fill="rgba(248,113,113,.7)">Offline</text>
-        <rect x="14" y="86" width="102" height="72" rx="7" fill="rgba(255,255,255,.025)" stroke="rgba(255,255,255,.07)" strokeWidth=".7" />
-        {[22,35,48,61,74,87,100].map((x, i) => (
-          <rect key={i} x={x} y={155 - [20,28,24,30,26,29,27][i]} width="9" height={[20,28,24,30,26,29,27][i]} rx="2" fill="url(#barG)" opacity=".75" />
-        ))}
-        <rect x="48" y="152" width="9" height="3" rx="1" fill="url(#barR)" opacity=".8" />
-        <rect x="74" y="150" width="9" height="4" rx="1" fill="url(#barR)" opacity=".8" />
-        <rect x="8" y="174" width="114" height="26" rx="0" fill="rgba(84,97,200,.12)" stroke="rgba(84,97,200,.2)" strokeWidth=".7" />
-        <text x="65" y="184" textAnchor="middle" fontSize="7" fill="rgba(126,148,216,.8)">▶ Main Playlist</text>
-        <text x="65" y="194" textAnchor="middle" fontSize="7" fill="rgba(84,97,200,.5)">Program Sequence</text>
-        <rect x="50" y="212" width="30" height="8" rx="3" fill="rgba(255,255,255,.07)" />
-        <rect x="38" y="218" width="54" height="5" rx="2" fill="rgba(255,255,255,.05)" />
-        <circle cx="122" cy="16" r="5" fill="#34d399" filter="url(#glow)" />
-        <circle cx="122" cy="16" r="9" fill="#34d399" fillOpacity=".15" />
-      </g>
-
-      {/* Device B — OFFLINE */}
-      <g transform="translate(220,30)" opacity=".42">
-        <rect x="0" y="0" width="100" height="155" rx="10" fill="#06080f" stroke="rgba(248,113,113,.30)" strokeWidth="1.5" />
-        <rect x="7" y="7" width="86" height="118" rx="7" fill="rgba(20,20,36,.8)" />
-        <text x="50" y="54" textAnchor="middle" fontSize="22" fill="rgba(248,113,113,.25)">⚠</text>
-        <text x="50" y="74" textAnchor="middle" fontSize="8" fill="rgba(248,113,113,.45)">CONNECTION LOST</text>
-        <rect x="20" y="82" width="60" height="4" rx="2" fill="rgba(100,100,130,.15)" />
-        <rect x="28" y="91" width="44" height="4" rx="2" fill="rgba(100,100,130,.10)" />
-        <rect x="7" y="131" width="86" height="18" rx="0" fill="rgba(248,113,113,.06)" stroke="rgba(248,113,113,.15)" strokeWidth=".6" />
-        <text x="50" y="143" textAnchor="middle" fontSize="7" fill="rgba(248,113,113,.5)">Last seen 06:00 น.</text>
-        <rect x="35" y="157" width="30" height="6" rx="2" fill="rgba(255,255,255,.06)" />
-        <circle cx="92" cy="12" r="4" fill="#f87171" />
-      </g>
-
-      {/* Device C — hint */}
-      <g transform="translate(360,60)" opacity=".25">
-        <rect x="0" y="0" width="72" height="110" rx="8" fill="#08090f" stroke="rgba(84,97,200,.25)" strokeWidth="1" />
-        <rect x="5" y="5" width="62" height="82" rx="6" fill="rgba(15,22,50,.8)" />
-        <rect x="12" y="14" width="48" height="6" rx="2" fill="rgba(84,97,200,.25)" />
-        <rect x="12" y="25" width="48" height="30" rx="5" fill="rgba(84,97,200,.08)" />
-        <circle cx="64" cy="10" r="3" fill="#34d399" fillOpacity=".5" />
-      </g>
-
-      <text x="95" y="224" textAnchor="middle" fontSize="8" fill="rgba(52,211,153,.55)" fontFamily="'JetBrains Mono',monospace">● SG-032 ONLINE</text>
-      <text x="270" y="200" textAnchor="middle" fontSize="8" fill="rgba(248,113,113,.45)" fontFamily="'JetBrains Mono',monospace">● SG-016 OFFLINE</text>
-    </svg>
   )
 }
