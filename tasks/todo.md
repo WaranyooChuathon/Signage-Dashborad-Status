@@ -1,25 +1,29 @@
-# TODO — หน้า Settings (`/settings/profile`) ✅ เสร็จ (2026-06-16)
+# TODO — งานค้างที่เหลือ (4 ฟีเจอร์)
 
-> อ้างอิง `tasks/plan.md` · `SPEC.md`
+> อ้างอิง `tasks/plan.md` · เริ่ม 2026-06-16
 > กฎ: ทุก task `npm run build` ผ่าน + รันโหมด mock (ไม่มี `.env.local`) ได้ ก่อน commit
 
-## Phase 1 — Foundation + Profile (สิ้น 404)
-- [x] **T1** ThemeProvider: เพิ่ม `setTheme` (คง `toggleTheme` เดิม)
-- [x] **T2** mock client: เพิ่ม `auth.updateUser` stub
-- [x] **T3** `settings/profile/page.tsx` — server: ดึง user + profile (+fallback)
-- [x] **T4** `settings-client.tsx` + `settings.css` — Profile section (แก้ full_name + organization)
-- [x] **Checkpoint 1** — ไม่ 404, Profile edit ครบ 2 โหมด, build ผ่าน
+## F1 — Notifications dropdown
+- [ ] **T1.1** topbar เป็น client + ดึง offline devices (RPC) + Bell badge
+- [ ] **T1.2** notification-menu dropdown + mark-as-read (localStorage) + empty/close
+- [ ] **Checkpoint F1** — mock: badge=offline count, dropdown, mark read persist, build ผ่าน
 
-## Phase 2 — Password + Appearance + Notifications
-- [x] **T5** Change Password section (`auth.updateUser`, validate ≥8 + ตรงกัน)
-- [x] **T6** Appearance section (ธีม via setTheme + ภาษา preference)
-- [x] **T7** Notifications section (toggle → `localStorage 'cc-noti'`)
-- [x] **Checkpoint 2** — 4 sections ทำงานโหมด mock, build ผ่าน
+## F2 — Command palette (⌘K)
+- [ ] **T2.1** command-palette component + global ⌘K + nav/action + keyboard
+- [ ] **T2.2** sidebar Quick find → คลิกเปิด palette
+- [ ] **Checkpoint F2** — mock: ⌘K/คลิกเปิด, กรอง, Enter นำทาง, Esc ปิด, build ผ่าน
 
-## Phase 3 — Polish + Verify
-- [x] **T8** responsive ≤860px + dark mode ครบ + verify ทั้งหน้า (Chrome DevTools)
-- [x] **Checkpoint 3** — dual-mode ผ่าน, build เขียว, อัปเดต CHANGELOG/CLAUDE.md, commit
+## F3 — ลืมรหัสผ่าน (reset)
+- [ ] **T3.1** mock stub `resetPasswordForEmail`
+- [ ] **T3.2** login: ลิงก์ → ฟอร์มอีเมล → resetPasswordForEmail
+- [ ] **T3.3** หน้า `/reset-password` ตั้งรหัสใหม่ (updateUser)
+- [ ] **Checkpoint F3** — mock: flow ขอ reset + ตั้งรหัสใหม่, build ผ่าน
+
+## F4 — Sync จริง
+- [ ] **T4.1** /api/sync เขียน snapshot ใหม่ (real, service_role) / simulate (mock)
+- [ ] **Checkpoint F4** — mock: Sync ไม่ error; (real) row ใหม่ใน device_logs
 
 ---
-**ผลลัพธ์:** `/settings/profile` ใช้งานได้จริง 4 sections, dual-mode, dark + responsive ผ่าน
-ดูสรุปใน `CHANGELOG.md` (2026-06-16)
+**ไฟล์หลักที่จะแตะ:** topbar.tsx, notification-menu.tsx(ใหม่), command-palette.tsx(ใหม่),
+sidebar.tsx, layout.tsx, login-form.tsx, reset-password/(ใหม่), lib/mock/client.ts, api/sync/route.ts
+**ห้ามแตะ:** schema/DB (เว้น F4 insert ผ่าน service_role), repo บริษัท

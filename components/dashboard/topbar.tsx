@@ -1,8 +1,9 @@
 'use client'
 
 import { usePathname } from 'next/navigation'
-import { Bell, Sun, Moon } from 'lucide-react'
+import { Sun, Moon } from 'lucide-react'
 import { useTheme } from './theme-provider'
+import NotificationMenu from './notification-menu'
 
 const titles: Record<string, { title: string; sub: string }> = {
   '/dashboard':         { title: 'Dashboard',       sub: 'ภาพรวมสถานะอุปกรณ์ทั้งหมด' },
@@ -34,9 +35,7 @@ export default function Topbar() {
             : <Moon size={16} strokeWidth={1.6} />
           }
         </button>
-        <button className="tb-icon-btn" title="Notifications">
-          <Bell size={16} strokeWidth={1.6} />
-        </button>
+        <NotificationMenu />
       </div>
     </header>
   )
