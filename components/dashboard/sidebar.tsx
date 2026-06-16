@@ -93,11 +93,15 @@ export default function Sidebar() {
           </div>
         </div>
 
-        <div className="sb-search">
+        <button
+          type="button"
+          className="sb-search"
+          onClick={() => window.dispatchEvent(new CustomEvent('cc:open-palette'))}
+        >
           <Search size={14} strokeWidth={1.8} />
-          <input className="sb-search-input" placeholder="Quick find…" readOnly />
+          <span className="sb-search-input sb-search-placeholder">Quick find…</span>
           <span className="sb-search-kbd">⌘K</span>
-        </div>
+        </button>
 
         <nav className="sb-nav">
           {navItems.map((section) => (

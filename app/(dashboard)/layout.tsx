@@ -3,6 +3,7 @@ import Sidebar from '@/components/dashboard/sidebar'
 import Topbar from '@/components/dashboard/topbar'
 import ThemeProvider from '@/components/dashboard/theme-provider'
 import DemoBanner from '@/components/dashboard/demo-banner'
+import CommandPalette from '@/components/dashboard/command-palette'
 
 export default function DashboardLayout({
   children,
@@ -18,6 +19,7 @@ export default function DashboardLayout({
         <Topbar />
         <div className="dash-content">{children}</div>
       </div>
+      <CommandPalette />
     </ThemeProvider>
   )
 }
