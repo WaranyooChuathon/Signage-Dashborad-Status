@@ -1,5 +1,27 @@
 # Changelog — Smart Signage Dashboard
 
+## 2026-06-16 — ระบบภาษา TH/EN (i18n) + ถอด forgot-password
+
+### i18n — สลับภาษาไทย/อังกฤษจริง
+> เดิมตัวเลือกภาษาใน Settings เก็บ preference เฉย ๆ ไม่แปล UI · ตอนนี้แปลจริง (ขอบเขต core)
+
+- `lib/i18n/dict.ts` — dictionary TH/EN (+ `MONTHS`); `language-provider.tsx` —
+  `LanguageProvider` + `useLang()` + `t(key, {vars})` (interpolation), persist `cc-lang`
+- `app/(dashboard)/layout.tsx` — wrap `LanguageProvider`; Settings language selector
+  ขับ provider → สลับภาษาแล้วทั้งแอป re-render ทันที (ไม่ต้อง reload)
+- แปลครบ: sidebar, topbar, notification-menu, command-palette, demo-banner,
+  dashboard-client, kpi-cards, offline/online-list, trend-chart, device-table, settings
+- date locale (`th`/`enUS`) + ชื่อเดือนไทย/อังกฤษใน trend chart; nav ใน TH mode เป็นไทยแล้ว
+- **ขอบเขต:** core chrome + Settings + Dashboard. หน้า Devices/Reports/Users ภายใน +
+  login ยังเป็นไทย — ขยายต่อได้ด้วย `t()` + เพิ่ม key ใน dict
+- ✅ verify: build ผ่าน; mock — สลับ TH↔EN ครบทุกส่วน core, persist ข้าม refresh
+
+### ถอด forgot-password (F3) ออก
+- demo ใช้อีเมลสมมติที่ไม่มี inbox จริง → การส่งลิงก์ reset ทำให้เข้าใจผิด
+- ลบ login forgot view + `/reset-password` + proxy public-route + mock stub; ลบลิงก์ทิ้ง
+
+---
+
 ## 2026-06-16 — งานค้าง 4 ฟีเจอร์ (Notifications · ⌘K · Reset password · Sync)
 
 > ปิดงานค้างเดิมทั้งหมดใน CLAUDE.md (Future work) · ผ่าน `/plan → /build` · ทุกฟีเจอร์ dual-mode

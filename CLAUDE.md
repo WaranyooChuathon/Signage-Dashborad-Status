@@ -64,12 +64,18 @@ npm run build          # ต้องผ่านก่อน commit เสม�
 - ~~**หน้า Settings (`/settings/profile`)**~~ ✅ — โปรไฟล์/รหัสผ่าน/ธีม+ภาษา/noti prefs
 - ~~ปุ่ม **Notifications** (topbar)~~ ✅ — dropdown แจ้งเตือนจริงจาก device offline + mark-as-read
 - ~~ช่อง **Quick find / ⌘K**~~ ✅ — command palette จริง (นำทาง/สลับธีม/sign out)
-- ~~ลิงก์ **"ลืมรหัสผ่าน?"**~~ ✅ — reset flow + หน้า `/reset-password` (dual-mode)
 - ~~ปุ่ม **"Sync ตอนนี้"**~~ ✅ — real mode เขียน snapshot ใหม่ (จำลอง scraper); mock simulate
-- **ไอเดียถัดไป:** i18n เต็มรูปแบบ (ตอนนี้ภาษาเป็น preference), command palette ค้นหา device,
+- ~~ลิงก์ **"ลืมรหัสผ่าน?"**~~ ❌ ถอดออก — demo ใช้อีเมลปลอม ไม่มี inbox จริง (ลบลิงก์ทิ้ง)
+- ~~**ภาษา (i18n)**~~ ✅ บางส่วน — สลับ TH/EN จริงแล้วใน core (sidebar/topbar/Settings/Dashboard)
+  ผ่าน `lib/i18n/` (`useLang()` + `t()`). **เหลือ:** หน้า Devices/Reports/Users ภายใน + login
+- **ไอเดียถัดไป:** ขยาย i18n ให้ครบทุกหน้า, command palette ค้นหา device,
   notification แบบ realtime (Supabase subscription)
 
-> ⚠️ real mode ต้องตั้งค่าเพิ่ม: เพิ่ม `<origin>/reset-password` ใน Supabase Auth redirect URLs
+## 🌐 i18n (ภาษา)
+- dict: `lib/i18n/dict.ts` (TH/EN + `MONTHS`) · provider: `lib/i18n/language-provider.tsx`
+- ใช้ใน component: `const { t, lang } = useLang()` แล้วเรียก `t('key')` / `t('key', { var })`
+- เพิ่มหน้าใหม่เข้า i18n: เพิ่ม key ทั้ง `th` + `en` ใน dict แล้วแทน hardcoded string ด้วย `t()`
+- ค่าภาษาเก็บ `localStorage 'cc-lang'`; สลับใน Settings → ทั้งแอป re-render ทันที
 
 ## ⛔ ข้อห้าม
 - ห้ามแตะ repo/โฟลเดอร์งานบริษัท (`signage-status-clude`) — โปรเจกต์นี้แยกขาดแล้ว
