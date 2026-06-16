@@ -60,8 +60,7 @@ npm run build          # ต้องผ่านก่อน commit เสม�
 - [ ] commit message ลงท้าย `Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>`
 
 ## 📋 งานค้าง / ไอเดียอนาคต (Future work)
-- **หน้า Settings (`/settings/profile`)** — sidebar + topbar มีลิงก์แล้วแต่ **ยังไม่มีไฟล์ page → 404**
-  เป็นงานแรกที่น่าทำ (เช่น แก้โปรไฟล์, เปลี่ยนรหัสผ่าน, ตั้งค่าธีม/ภาษา, notification prefs)
+- ~~**หน้า Settings (`/settings/profile`)**~~ ✅ เสร็จแล้ว (2026-06-16) — โปรไฟล์/รหัสผ่าน/ธีม+ภาษา/noti prefs (ดู CHANGELOG)
 - ปุ่ม **Notifications** (topbar) ยังเป็น decorative — ทำ dropdown/หน้าแจ้งเตือนจริงได้
 - ช่อง **Quick find / ⌘K** ใน sidebar เป็น `readonly` — ทำ command palette จริง
 - ลิงก์ **"ลืมรหัสผ่าน?"** ในหน้า login ยังไม่ทำงาน — ต่อ Supabase reset password

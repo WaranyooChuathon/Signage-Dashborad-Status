@@ -1,5 +1,43 @@
 # Changelog — Smart Signage Dashboard
 
+## 2026-06-16 — หน้า Settings (`/settings/profile`)
+
+> งานค้างข้อแรกจาก CLAUDE.md (Future work) — เดิม sidebar/topbar ลิงก์อยู่แล้วแต่ไม่มี page → 404
+> ทำผ่าน workflow `/spec → /plan → /build` (ดู `SPEC.md`, `tasks/plan.md`)
+
+### หน้าใหม่ — 4 sections (dual-mode: mock + real Supabase)
+
+- `app/(dashboard)/settings/profile/page.tsx` — server component (`force-dynamic`):
+  `getUser()` → ดึง profile ของ user ปัจจุบัน (`.find()` กรองเองให้ทำงานทั้ง 2 โหมด) + fallback กัน null
+- `settings-client.tsx` — client:
+  - **Profile** — แก้ `full_name` + `organization`; `email`/role badge/status read-only; ปุ่มบันทึก disabled เมื่อไม่เปลี่ยน/กำลังบันทึก
+  - **Change Password** — `supabase.auth.updateUser({ password })`; validate ≥ 8 + ยืนยันตรงกัน; eye toggle; เคลียร์ช่องหลังสำเร็จ
+  - **Appearance** — ธีม Light/Dark ผ่าน `useTheme().setTheme` (sync กับ topbar + persist); ภาษา TH/EN เก็บ `localStorage 'cc-lang'` (preference เท่านั้น, ยังไม่มี i18n จริง)
+  - **Notifications** — toggle 3 ตัว (device offline / สรุปรายวัน / รายงานรายสัปดาห์) เก็บ `localStorage 'cc-noti'` (JSON)
+- `settings.css` — layout 2-col, form/segmented/toggle, dark overrides, responsive ≤ 860px (stack คอลัมน์เดียว)
+
+### ไฟล์รองรับ
+
+- `components/dashboard/theme-provider.tsx` — เพิ่ม `setTheme(t)` (ตั้งค่าชัดเจน) คู่กับ `toggleTheme` เดิม (backward-compatible)
+- `lib/mock/client.ts` — เพิ่ม `auth.updateUser` stub → mock mode เปลี่ยนรหัสผ่านไม่ crash
+
+### Verify
+
+- `npm run build` ผ่าน; `/settings/profile` ขึ้นเป็น route
+- mock mode (ไม่มี `.env.local`): HTTP 200, prefill `demo@smartsignage.app` + `Demo Admin`, ครบ 4 sections, ไม่มี error
+- Chrome DevTools: light + dark (persistence ทำงาน) + responsive 820px (single column) ผ่าน
+
+| ไฟล์ | ประเภท |
+|------|--------|
+| `app/(dashboard)/settings/profile/page.tsx` | ใหม่ |
+| `app/(dashboard)/settings/profile/settings-client.tsx` | ใหม่ |
+| `app/(dashboard)/settings/profile/settings.css` | ใหม่ |
+| `components/dashboard/theme-provider.tsx` | แก้ไข |
+| `lib/mock/client.ts` | แก้ไข |
+| `SPEC.md`, `tasks/plan.md`, `tasks/todo.md` | ใหม่/แก้ไข |
+
+---
+
 ## 2026-05-27 — Reports Page Polish & User Management
 
 ### Reports — Uptime Card: Sort Toggle
