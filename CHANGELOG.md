@@ -1,5 +1,22 @@
 # Changelog — Smart Signage Dashboard
 
+## 2026-06-16 — i18n ครบทุกหน้า + default EN
+
+> ต่อยอดจาก i18n core — ขยายให้ครบทุกหน้าหลัง login และตั้ง default เป็นอังกฤษ
+
+- **default ภาษา → `en`** (`language-provider.tsx`) — ผู้เข้าชมใหม่เห็นอังกฤษก่อน
+- แปลครบอีก 3 หน้าที่เหลือ:
+  - **Devices** — `device-list-client` (summary/tabs/search/table/pagination) +
+    `device-side-panel` (status/info/actions/maps)
+  - **Reports** — `reports-client` (range/KPI/charts/uptime/sort) + `DeviceStatsTable`
+  - **Users** — `user-management-client` (KPI/toolbar/table/actions/toasts) +
+    `user-modal` (ฟอร์ม/validation/toasts) + `delete-modal`
+- date locale (`en-GB`/`th-TH`) ตามภาษาในทุกตาราง; `dict.ts` เพิ่มหมวด `dev.`/`rp.`/`um.` + `common.save`
+- **ผลลัพธ์:** ทั้งแอป (ยกเว้นหน้า login) รองรับ TH/EN ครบ
+- ✅ verify: build ผ่าน; mock — default=EN, ทั้ง 3 หน้าแปลครบ (ไม่มีไทยตกค้าง), สลับ TH ยังทำงาน
+
+---
+
 ## 2026-06-16 — ระบบภาษา TH/EN (i18n) + ถอด forgot-password
 
 ### i18n — สลับภาษาไทย/อังกฤษจริง
