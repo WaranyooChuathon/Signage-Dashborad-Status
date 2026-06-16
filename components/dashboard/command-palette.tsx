@@ -40,7 +40,7 @@ export default function CommandPalette() {
     { id: 'usr',  label: t('nav.users'),     hint: t('cmd.hint.users'),    Icon: Users,           keywords: 'user ผู้ใช้ สิทธิ์ role จัดการ', run: () => router.push('/settings/users') },
     { id: 'set',  label: t('nav.settings'),  hint: t('cmd.hint.settings'), Icon: Settings,        keywords: 'settings ตั้งค่า โปรไฟล์ profile รหัสผ่าน', run: () => router.push('/settings/profile') },
     { id: 'theme', label: theme === 'dark' ? t('cmd.themeToLight') : t('cmd.themeToDark'), hint: t('cmd.hint.theme'), Icon: theme === 'dark' ? Sun : Moon, keywords: 'theme dark light ธีม สลับ', run: toggleTheme },
-    { id: 'out',  label: t('cmd.signOut'),   hint: 'Sign out', Icon: LogOut,          keywords: 'logout sign out ออกจากระบบ', run: async () => { const s = createClient(); await s.auth.signOut(); router.push('/login') } },
+    { id: 'out',  label: t('cmd.signOut'),   hint: 'Sign out', Icon: LogOut,          keywords: 'logout sign out ออกจากระบบ', run: async () => { const s = createClient(); await s.auth.signOut(); window.location.assign('/login') } },
   ], [router, theme, toggleTheme, t])
 
   const filtered = useMemo(() => {

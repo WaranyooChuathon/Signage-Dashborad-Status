@@ -35,14 +35,25 @@ export async function proxy(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
   const isLoginPage = request.nextUrl.pathname.startsWith('/login')
 
-  if (!user && !isLoginPage) {
+  // helper: redirect พร้อม carry cookies ที่ refresh มา (กัน session หลุด)
+  const redirectTo = (pathname: string) => {
     const url = request.nextUrl.clone()
-    url.pathname = '/login'
+    url.pathname = pathname
     const redirectResponse = NextResponse.redirect(url)
     supabaseResponse.cookies.getAll().forEach((cookie) => {
       redirectResponse.cookies.set(cookie.name, cookie.value)
     })
     return redirectResponse
+  }
+
+  // ยังไม่ล็อกอิน + ไม่ใช่หน้า login → ส่งไป login
+  if (!user && !isLoginPage) {
+    return redirectTo('/login')
+  }
+
+  // ล็อกอินแล้วแต่ยังอยู่หน้า login (เช่น กด back) → ส่งกลับ dashboard
+  if (user && isLoginPage) {
+    return redirectTo('/dashboard')
   }
 
   return supabaseResponse

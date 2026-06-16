@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { usePathname, useRouter } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { useLang } from '@/lib/i18n/language-provider'
@@ -36,7 +36,6 @@ const allItems = navItems.flatMap((s) => s.items)
 
 export default function Sidebar() {
   const pathname = usePathname()
-  const router   = useRouter()
   const { t }    = useLang()
   const [userEmail,   setUserEmail]   = useState<string | null>(null)
   const [userInitial, setUserInitial] = useState('A')
@@ -54,7 +53,9 @@ export default function Sidebar() {
   async function handleSignOut() {
     const supabase = createClient()
     await supabase.auth.signOut()
-    router.push('/login')
+    // hard navigation: full reload เคลียร์ state ทั้งหมด + ไม่เกิด SPA cross-fade
+    // (dashboard.css ค้างทับ .login-page) — กันหน้า login เพี้ยนหลัง sign out
+    window.location.assign('/login')
   }
 
   return (

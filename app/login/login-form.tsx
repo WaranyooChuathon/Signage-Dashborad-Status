@@ -1,8 +1,9 @@
 'use client'
 
 import './login.css'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { hasSupabaseEnv } from '@/lib/supabase/config'
 import { useRouter } from 'next/navigation'
 import { useLang } from '@/lib/i18n/language-provider'
 import { useTheme } from '@/components/dashboard/theme-provider'
@@ -17,6 +18,22 @@ export default function LoginForm() {
   const [success, setSuccess] = useState('')
   const [loading, setLoading] = useState(false)
   const router = useRouter()
+
+  // โหมด real: ถ้าล็อกอินอยู่แล้วไม่ควรเห็นหน้า login (เช่น กด back) → ส่งกลับ dashboard
+  // โหมด demo (mock): ข้าม — หน้า login เป็น showcase ต้องเปิดดูได้เสมอ
+  useEffect(() => {
+    if (!hasSupabaseEnv) return
+    let active = true
+    const check = async () => {
+      const { data } = await createClient().auth.getUser()
+      if (active && data.user) router.replace('/dashboard')
+    }
+    check()
+    // bfcache: กด back แล้ว browser คืนหน้าจาก cache โดยไม่ rerun effect → เช็คซ้ำตอน pageshow
+    const onShow = (e: PageTransitionEvent) => { if (e.persisted) check() }
+    window.addEventListener('pageshow', onShow)
+    return () => { active = false; window.removeEventListener('pageshow', onShow) }
+  }, [router])
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault()
