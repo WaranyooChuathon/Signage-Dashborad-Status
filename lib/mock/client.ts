@@ -82,6 +82,10 @@ export function createMockClient() {
       async signInWithPassword(_creds?: { email: string; password: string }) {
         return { data: { user: DEMO_USER, session: {} }, error: null }
       },
+      // โหมด mock: จำลองอัปเดต user (เช่น เปลี่ยนรหัสผ่าน) ให้สำเร็จเสมอ
+      async updateUser(_attrs?: Record<string, unknown>) {
+        return { data: { user: DEMO_USER }, error: null as MockError }
+      },
       async signOut() {
         return { error: null }
       },

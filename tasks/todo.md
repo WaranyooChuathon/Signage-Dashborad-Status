@@ -1,35 +1,25 @@
-# TODO — Full-Stack upgrade (real Supabase, company-safe)
+# TODO — หน้า Settings (`/settings/profile`)
 
-## Phase A — Infra (ทำได้เลย ไม่ต้องมี Supabase)
-- [x] **T1** env-toggle data layer (`lib/supabase/client.ts`, `server.ts`, `config.ts`, `proxy.ts`) — มี env=real / ไม่มี=mock
-  - ✅ verified: ไม่มี `.env` → build ผ่าน + dashboard/login render (mock)
-- [x] **Checkpoint A** — mock mode ยังทำงาน 100% ✅
+> อ้างอิง `tasks/plan.md` · `SPEC.md` · เริ่ม 2026-06-16
+> กฎ: ทุก task ต้อง `npm run build` ผ่าน + รันโหมด mock (ไม่มี `.env.local`) ได้ ก่อน commit
 
-## Phase B — Supabase backend (ต้องมีบัญชี Supabase ของคุณ)
-> 📝 ไฟล์ SQL/seed เขียนพร้อมแล้ว (`supabase/schema.sql`, `supabase/functions.sql`, `scripts/seed.ts`)
-> เหลือแค่คุณสร้าง project + รัน
-- [~] **T2** schema (`device_logs`, `profiles`) + RLS + index → **`supabase/schema.sql` พร้อมรัน** ⏳ รอคุณรันใน Supabase
-  - ✅ verify: ตาราง/policy/index ครบตาม `types/database.ts`
-- [~] **T3** RPC 4 ตัว → **`supabase/functions.sql` พร้อมรัน** ⏳ รอคุณรันใน Supabase
-  - ✅ verify: signature + คอลัมน์ผลลัพธ์ตรงกับที่หน้าเดิมเรียก
-- [~] **T4** **`scripts/seed.ts` เขียนแล้ว** (reuse `lib/mock/data.ts`, time-series 90 วัน + 8 profiles) ⏳ รอคุณตั้ง `.env.local` + `npx tsx scripts/seed.ts`
-  - ✅ verify: ตั้ง `.env.local` ชี้ project ใหม่ → ทุกหน้าโชว์ข้อมูลจาก DB จริง
-- [ ] **Checkpoint B** — local ชี้ Supabase จริง + RPC ทำงาน
+## Phase 1 — Foundation + Profile (สิ้น 404)
+- [ ] **T1** ThemeProvider: เพิ่ม `setTheme` (คง `toggleTheme` เดิม)
+- [ ] **T2** mock client: เพิ่ม `auth.updateUser` stub
+- [ ] **T3** `settings/profile/page.tsx` — server: ดึง user + profile (+fallback)
+- [ ] **T4** `settings-client.tsx` + `settings.css` — Profile section (แก้ full_name + organization)
+- [ ] **Checkpoint 1** — ไม่ 404, Profile edit ครบ 2 โหมด, build ผ่าน
 
-## Phase C — Auth + demo
-- [x] **T5** auth จริง + demo account (`scripts/create-demo-user.ts`) + ปุ่ม demo = sign-in จริง; proxy guard
-  - ✅ verified: /dashboard ไม่มี session → 307 /login; ปุ่ม demo login สำเร็จ (sidebar โชว์ demo user)
-- [x] **T6** API routes env-toggle (`users/create` real/mock) + user-modal create env-aware
-  - ✅ verified: build ผ่าน real mode (routes เป็น dynamic)
-- [x] **Checkpoint C** ✅ — full-stack ครบ: รัน functions.sql แล้ว, RPC ทั้ง 4 คืนข้อมูลถูก,
-      dashboard ผ่าน browser โชว์ data จริง (29/5/34), auth + session ทำงาน
+## Phase 2 — Password + Appearance + Notifications
+- [ ] **T5** Change Password section (`auth.updateUser`, validate ≥8 + ตรงกัน)
+- [ ] **T6** Appearance section (ธีม via setTheme + ภาษา preference)
+- [ ] **T7** Notifications section (toggle → `localStorage 'cc-noti'`)
+- [ ] **Checkpoint 2** — 4 sections ทำงานโหมด mock, build ผ่าน
 
-## Phase D — Deploy + polish
-- [x] **T7** deploy Vercel ✅ — https://signage-dashborad-status.vercel.app (real mode, env ครบ)
-  - ✅ verified: / และ /dashboard → 307 /login, demo login → dashboard มี data จริง (29/5/34)
-- [x] **T8** `ARCHITECTURE.md` + ลิงก์ SQL/RPC ใน README, demo credentials, ตรวจ secret
-  - ✅ verified: ไม่มี `.env`/JWT ใน git
-- [x] **Checkpoint D** ✅ — live + ปลอดภัย + เล่า full-stack ได้ครบ 🎉 จบงาน full-stack
+## Phase 3 — Polish + Verify
+- [ ] **T8** responsive ≤860px + dark mode ครบ + verify ทั้งหน้า
+- [ ] **Checkpoint 3** — dual-mode ผ่าน, build เขียว → อัปเดต CHANGELOG + พร้อม merge
 
 ---
-**กฎ:** ห้ามแตะ `.env.local`/key ของบริษัท — ใช้ Supabase project ใหม่เท่านั้น
+**ไฟล์ที่จะแตะ:** `theme-provider.tsx`, `lib/mock/client.ts`, `settings/profile/{page,settings-client}.tsx` (ใหม่), `settings.css` (ใหม่)
+**ห้ามแตะ:** `dashboard.css`, schema/DB, repo บริษัท

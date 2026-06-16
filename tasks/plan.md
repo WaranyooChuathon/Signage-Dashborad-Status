@@ -1,151 +1,105 @@
-# Plan — ยกระดับ Live Demo เป็น Full-Stack จริงบน Supabase (company-safe)
+# Plan — หน้า Settings (`/settings/profile`)
 
-> เป้าหมาย: เปลี่ยน `signage-dashboard-demo` จาก mock-only → full-stack app จริง
-> บน **Supabase project ใหม่ของคุณเอง** seed ด้วยข้อมูลสมมติ
-> auth/CRUD/RPC ทำงานจริงและ persist — แต่ไม่มีข้อมูลหรือ connection กับระบบบริษัทเลย
->
-> หลักการสำคัญ: **env-toggle** — ถ้ามี Supabase env = ใช้ backend จริง / ถ้าไม่มี = fallback เป็น mock
-> (repo ยังรันได้ทันทีโดยไม่ต้องตั้งค่า และ reviewer clone ไปก็เห็นทั้งสองโหมด)
-
----
-
-## สถาปัตยกรรมที่จะได้
-
-```
-                    ┌─ มี env ──► Supabase จริง (Postgres + RPC + Auth)  ◄── deploy บน Vercel
-createClient() ─────┤
-                    └─ ไม่มี env ─► mock client (lib/mock) — เหมือนเดิม, รันได้ทันที
-```
-
-- Schema: `device_logs` (time-series) + `profiles` (ผูกกับ auth.users)
-- RPC 4 ตัว: `get_online_summary`, `get_device_trend`, `get_device_uptime`, `get_latest_status`
-- Auth จริง + demo account; ปุ่ม "เข้าชม Live Demo" = auto sign-in เป็น demo user (session จริง) แทนการ skip
-- Seed: reuse logic จาก `lib/mock/data.ts` ยิงเข้า DB ผ่าน seed script
+> อ้างอิง `SPEC.md` · สร้าง 2026-06-16
+> เป้าหมาย: สร้างหน้า `/settings/profile` (ปัจจุบัน 404) ให้ใช้งานได้จริง 4 sections
+> รักษา **dual-mode** (mock + real Supabase) ทุก task
 
 ---
 
 ## Dependency graph
 
 ```
-[1] env-toggle data layer  ─────────────► (ทุกอย่างพึ่งตัวนี้ก่อน)
-        │
-        ▼
-[2] Supabase project + schema + RLS ────► [3] RPC functions ────► [4] seed data
-                                                                        │
-                          ┌─────────────────────────────────────────────┤
-                          ▼                                              ▼
-                   [5] auth จริง + demo bypass                    [6] restore API routes (real)
-                          │                                              │
-                          └──────────────────┬───────────────────────────┘
-                                             ▼
-                                     [7] deploy Vercel + env
-                                             ▼
-                                     [8] polish (ARCHITECTURE.md, ลบ secret ออก git)
+[T1] theme-provider: เพิ่ม setTheme ───┐
+                                       │
+[T2] mock client: auth.updateUser ─────┤  (สอง prerequisite เล็ก ๆ ทำก่อนได้เลย)
+                                       │
+                                       ▼
+[T3] page.tsx (server: user+profile) ──► [T4] Profile section (สิ้น 404, edit ได้ครบเส้น)
+                                              │
+            ┌─────────────────┬──────────────┼───────────────┐
+            ▼                 ▼              ▼               ▼
+   [T5] Change Password  [T6] Appearance  [T7] Notifications  │
+   (ใช้ T2)              (ใช้ T1)         (localStorage)      │
+            └─────────────────┴──────────────┴───────────────┘
+                                  ▼
+                        [T8] responsive + dark polish + verify ครบหน้า
 ```
 
----
+**ลำดับแนะนำ:** T1 → T2 → T3 → T4 → (Checkpoint 1) → T5 → T6 → T7 → (Checkpoint 2) → T8
 
-## Phase A — Infra: env-toggle data layer (ไม่ต้องมี Supabase ก็ทำได้)
-
-### Task 1 — ทำ data layer ให้ toggle ระหว่าง real/mock
-- **ไฟล์:** `lib/supabase/client.ts`, `lib/supabase/server.ts`, `proxy.ts`
-- **ทำ:** กู้โค้ด Supabase จริง (createBrowserClient/createServerClient) กลับมา แล้วห่อด้วย guard:
-  ```ts
-  const hasSupabase = !!process.env.NEXT_PUBLIC_SUPABASE_URL
-  export function createClient() {
-    return hasSupabase ? createBrowserClient(url!, key!) : createMockClient()
-  }
-  ```
-  - `proxy.ts`: ถ้า `hasSupabase` → auth guard จริง (redirect ถ้าไม่ login), ถ้าไม่มี → pass-through (โหมด mock)
-- **Acceptance:** ไม่มี `.env` → app รันเหมือนเดิมทุกหน้า (mock); มี env ปลอม → ไม่ crash ตอน import
-- **Verify:** `npm run build` ผ่าน + `npm run dev` ไม่มี env แล้วทุกหน้ายัง render
-- ⚠️ ต้องมั่นใจว่า mock client มี method ครบเท่า code path เดิม (มีแล้วจากงานก่อน)
-
-### ✅ Checkpoint A — repo ยังทำงาน mock ได้ 100% ก่อนแตะ Supabase
+แต่ละ task = vertical slice ที่ build ผ่าน + ทำงานได้ในโหมด mock; commit ทีละ task
 
 ---
 
-## Phase B — Supabase backend (ต้องใช้บัญชี Supabase ของคุณ)
+## Phase 1 — Foundation + Profile (สิ้น 404)
 
-### Task 2 — สร้าง project + schema + RLS
-- **ทำใน Supabase dashboard / SQL editor:**
-  - สร้าง project ใหม่ (region ใกล้, free tier)
-  - `profiles` (id uuid PK = auth.users.id, email, full_name, role text check in super_admin/admin/viewer, organization, status text check active/suspended, created_at timestamptz default now(), last_login timestamptz)
-  - `device_logs` (id bigserial PK, device_id, device_name, signage_id, organize_id, department_id, gps_position, playmode, playlist_name, alert, active_status, action, scraped_timestamp timestamptz) — เก็บ **time-series** (หลาย row ต่อ device)
-  - index: `device_logs(device_id, scraped_timestamp desc)`
-  - RLS: เปิดทั้ง 2 table; policy: authenticated อ่าน `device_logs` + `profiles` ได้; profiles เขียนได้เฉพาะ service_role (ผ่าน API)
-- **เก็บ SQL ทั้งหมดไว้ใน repo:** `supabase/schema.sql` (ให้ reviewer เห็น = หลักฐาน backend)
-- **Acceptance:** ตาราง + RLS + index ครบตาม DeviceLog/Profile type ใน `types/database.ts`
-- **Verify:** `select` จาก SQL editor ได้ (ยังว่าง)
+### T1 — ขยาย ThemeProvider ให้มี `setTheme`
+- **ไฟล์:** `components/dashboard/theme-provider.tsx`
+- **ทำ:** เพิ่ม `setTheme(t: Theme)` ใน context (เก็บ state + `localStorage 'cc-theme'`), คง `toggleTheme` เดิมไว้ (ใช้ `setTheme` ภายใน) — backward-compatible กับ topbar
+- **AC:** topbar เดิม (toggleTheme) ยังทำงาน; `useTheme()` คืน `{ theme, toggleTheme, setTheme }`
+- **Verify:** `npm run build` ผ่าน; ปุ่มธีมใน topbar ยังสลับได้
 
-### Task 3 — เขียน RPC functions 4 ตัว (SQL)
-- **เก็บใน:** `supabase/functions.sql`
-- `get_latest_status()` → row ล่าสุดต่อ device (DISTINCT ON device_id ORDER BY scraped_timestamp DESC)
-- `get_online_summary(period text)` → online_count/offline_count/total จาก latest status
-- `get_device_trend(days_back int)` → group by day, นับ online/offline ต่อวัน
-- `get_device_uptime(days_back int)` → ต่อ device: total_records, online_records, offline_records, uptime_pct
-- **Acceptance:** signature + ชื่อ + คอลัมน์ผลลัพธ์ **ตรงเป๊ะ** กับที่หน้าเดิมเรียก (ดู `dashboard/page.tsx`, `reports/page.tsx`, `reports-client.tsx`)
-- **Verify:** เรียกแต่ละ RPC ใน SQL editor ได้ shape ถูก (หลัง seed)
+### T2 — Mock client: เพิ่ม `auth.updateUser` stub
+- **ไฟล์:** `lib/mock/client.ts`
+- **ทำ:** เพิ่ม method `async updateUser(_attrs) { return { data: { user: DEMO_USER }, error: null } }` ใน `auth`
+- **AC:** mock mode เรียก `supabase.auth.updateUser({ password })` ได้ คืน `error: null` ไม่ crash
+- **Verify:** `npm run build` ผ่าน; type ตรงกับที่ client section จะเรียก
 
-### Task 4 — Seed ข้อมูลสมมติ (reuse mock generators)
-- **ทำ:** `scripts/seed.ts` — import generators จาก `lib/mock/data.ts` แล้ว insert เข้า `device_logs`
-  - generate time-series ย้อนหลัง ~90 วัน (เช่น snapshot ทุก 1–6 ชม.) ให้ trend/uptime มีข้อมูลจริง
-  - insert profiles seed (8 คน) ผ่าน service_role
-  - รันด้วย `npx tsx scripts/seed.ts` (ใช้ `.env.local` ของ project ใหม่)
-- **Acceptance:** row count สมเหตุผล (เช่น 34 devices × snapshots), demo data ยังเป็นชื่อสมมติ (Aurora City, SG-0xx)
-- **Verify:** ตั้ง `.env.local` ชี้ project ใหม่ → `npm run dev` → ทุกหน้าโชว์ข้อมูล "จาก DB จริง" (เทียบกับ mock ต้องใกล้เคียง)
+### T3 — Server page: ดึง user + profile
+- **ไฟล์:** `app/(dashboard)/settings/profile/page.tsx` (ใหม่)
+- **ทำ:** `force-dynamic`; `getUser()` → query `profiles` ของ id นั้น; ถ้าไม่พบ → fallback จาก auth user (email, user_metadata.full_name); ส่ง `initialProfile` + `email` ให้ client
+- **AC:** เข้า `/settings/profile` **ไม่ 404 อีกต่อไป**; mock mode ได้ profile ของ `u-001` (Demo Admin)
+- **Verify:** `npm run dev` (mock) → เปิดหน้าได้, ไม่มี error ใน console
 
-### ✅ Checkpoint B — local ชี้ Supabase จริงแล้วทุกหน้า render + RPC ทำงาน
+### T4 — Profile section (แก้ full_name + organization)
+- **ไฟล์:** `app/(dashboard)/settings/profile/settings-client.tsx` (ใหม่), `settings.css` (ใหม่)
+- **ทำ:** โครง client + การ์ด Profile: input `full_name`/`organization`, read-only `email`/`role` badge/`status`; ปุ่มบันทึก → `from('profiles').update().eq('id')`; `showToast`; ปุ่ม disabled เมื่อ saving/ไม่เปลี่ยน; validate full_name ไม่ว่าง
+- **AC:** prefill ถูก; กดบันทึก → toast สำเร็จ; mock อัปเดต in-memory; full_name ว่าง → กันไว้
+- **Verify:** mock mode แก้ชื่อ → บันทึก → toast; reload (real) ค่าใหม่อยู่
+
+### ✅ Checkpoint 1 — หน้าไม่ 404, Profile edit ครบเส้นทั้ง 2 โหมด, build ผ่าน
 
 ---
 
-## Phase C — Auth จริง + demo experience
+## Phase 2 — Password + Appearance + Notifications
 
-### Task 5 — Auth จริง + demo account + bypass-as-login
-- **ทำ:**
-  - สร้าง demo auth user (เช่น `demo@smartsignage.app` / รหัสที่โชว์ได้) + profile role=admin
-  - `login-form.tsx`: ปุ่ม "เข้าชม Live Demo" เปลี่ยนจาก `router.push('/dashboard')` → `signInWithPassword(demo creds)` จริง แล้วค่อย push (ได้ session จริง, sidebar โชว์ user จริง, sign out ใช้ได้จริง)
-  - คง prefill demo creds ในฟอร์มไว้
-  - `proxy.ts` auth guard ทำงาน (โหมด real) → /dashboard ต้องมี session
-- **Acceptance:** ไม่ login → เข้า /dashboard ไม่ได้ (redirect /login); กดปุ่ม demo → เข้าได้จริง; refresh แล้ว session ค้าง
-- **Verify:** login จริง + demo button + sign out ครบ flow
+### T5 — Change Password section
+- **ไฟล์:** `settings-client.tsx`, `settings.css`
+- **ทำ:** การ์ดรหัสผ่าน: 2 ช่อง (ใหม่ + ยืนยัน) + eye toggle (pattern `user-modal.tsx`); ปุ่ม → `supabase.auth.updateUser({ password })`; validate ≥ 8 + ตรงกัน; เคลียร์ช่องหลังสำเร็จ
+- **AC:** < 8 → error toast; ไม่ตรงกัน → error; ผ่าน → toast สำเร็จ + เคลียร์; mock ไม่ crash (T2)
+- **Verify:** mock mode ทดสอบ 3 เคส (สั้น/ไม่ตรง/ผ่าน)
 
-### Task 6 — Restore API routes ให้ทำงานจริง (env-toggle)
-- **ไฟล์:** `app/api/users/create/route.ts`, `app/api/sync/route.ts`
-- **ทำ:** ถ้ามี `SUPABASE_SERVICE_ROLE_KEY` → ใช้ admin createUser + insert profile จริง; ไม่มี → stub mock เดิม
-- **Acceptance:** สร้าง user ใหม่ผ่าน UI แล้ว persist ใน DB จริง + login ด้วย user นั้นได้
-- **Verify:** เพิ่ม user → reload → ยังอยู่; CRUD (suspend/delete) persist
+### T6 — Appearance section (ธีม + ภาษา)
+- **ไฟล์:** `settings-client.tsx`, `settings.css`
+- **ทำ:** เลือกธีม Light/Dark ผ่าน `useTheme().setTheme` (T1); ภาษา TH/EN → `localStorage 'cc-lang'` (preference เท่านั้น)
+- **AC:** เลือก dark → ทั้งหน้า + topbar sync + persist refresh; เลือกภาษา → persist refresh, ไม่ throw, ไม่แปล UI
+- **Verify:** สลับธีมในหน้า → topbar icon เปลี่ยนตาม; refresh ค้าง; lang ค้าง
 
-### ✅ Checkpoint C — full-stack ครบ local: auth + CRUD persist + RPC
+### T7 — Notifications section (preference)
+- **ไฟล์:** `settings-client.tsx`, `settings.css`
+- **ทำ:** toggle switches (DESIGN.md toggle): "แจ้งเตือนเมื่อ device offline", "สรุปรายวันทางอีเมล" (+ option ที่เหมาะสม); เก็บ `localStorage 'cc-noti'` (JSON); default สมเหตุผล
+- **AC:** toggle → persist; refresh ค่าคงอยู่; default ครั้งแรกถูก
+- **Verify:** mock mode toggle → refresh → คงอยู่
+
+### ✅ Checkpoint 2 — ทั้ง 4 sections ทำงานในโหมด mock, build ผ่าน
 
 ---
 
-## Phase D — Deploy + polish
+## Phase 3 — Polish + Verify
 
-### Task 7 — Deploy Vercel พร้อม env
-- ตั้ง env บน Vercel: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SERVICE_ROLE_KEY`
-- Supabase Auth → เพิ่ม Vercel domain ใน redirect/allowed URLs
-- **Acceptance:** URL public ใช้ backend จริง, demo button เข้าได้, refresh ค้าง
-- **Verify:** เปิดจากเครื่องอื่น/incognito แล้ว flow ครบ
+### T8 — Responsive + dark mode + verify ครบหน้า
+- **ไฟล์:** `settings.css`
+- **ทำ:** การ์ด stack ≤ 860px ไม่ล้น; ตรวจ dark mode ทุก section (CSS variables); เก็บรายละเอียด spacing ตาม DESIGN.md
+- **AC:** ทุก AC ใน SPEC §2.5 ผ่าน; ไม่มี horizontal scroll บนจอแคบ; dark อ่านง่ายครบ
+- **Verify:** `npm run build`; mock mode เปิดทุก section + ย่อจอ + สลับ dark; (ถ้ามี env) real mode profile+password persist
+- **หลังผ่าน:** อัปเดต `CHANGELOG.md`; พิจารณา `/code-review` ก่อน merge
 
-### Task 8 — Polish หลักฐาน full-stack + ความปลอดภัย
-- `ARCHITECTURE.md` + diagram (scraper → Supabase → RPC → SSR → dashboard), อธิบาย design decisions
-- ลิงก์ `supabase/schema.sql` + `functions.sql` ใน README (โชว์ SQL/RPC จริง)
-- อัปเดต README/README-TH: เพิ่ม "demo credentials" + หมายเหตุ env
-- ⚠️ **ตรวจ git ว่าไม่มี `.env*` / service_role key หลุดเข้า repo** (gitignore คุมอยู่แล้ว — verify อีกรอบ)
-- **Acceptance:** reviewer อ่าน repo แล้วเข้าใจว่าเป็นระบบ full-stack จริง, ไม่มี secret หลุด
-
-### ✅ Checkpoint D — live, ปลอดภัย, เล่า full-stack ได้ครบ
+### ✅ Checkpoint 3 — หน้า Settings ครบ, dual-mode ผ่าน, build เขียว, พร้อม commit/merge
 
 ---
 
 ## ความเสี่ยง / ข้อควรระวัง
-- **Free tier cold start** — Supabase free จะ pause หลังไม่ใช้งานนาน → demo โหลดแรกช้า/ค้าง. ทางแก้: cron ping เบา ๆ หรือบอกใน README ว่า "first load may be slow"
-- **Seed ใหญ่** — 90 วัน × hourly อาจหลายหมื่น row; ปรับ granularity ถ้าช้า
-- **RPC ต้องตรง signature เดิมเป๊ะ** — ไม่งั้นหน้าเดิมพัง (acceptance ของ Task 3 คุมเรื่องนี้)
-- **company-safe** — ใช้ project ใหม่ + key ใหม่เท่านั้น ห้ามแตะ `.env.local` หรือ key ของบริษัท
-- **Demo CRUD ถูกแก้โดยคนนอก** — demo user แก้ profiles ได้ → ตั้ง cron reset seed รายวัน หรือจำกัด policy ถ้ากังวล
-
-## ลำดับแนะนำ
-A(1) → B(2→3→4) → C(5→6) → D(7→8) โดยหยุดทบทวนทุก Checkpoint
-ทำ Phase A ได้เลยทันที (ไม่ต้องรอ Supabase) ส่วน B เป็นต้นไปต้องมีบัญชี Supabase ของคุณ
+- **mock profile id mismatch** — `getUser()` คืน `u-001`; ต้องมั่นใจ `mockProfiles()` มี row id `u-001` ไม่งั้น fallback ต้องทำงาน (T3 คุมไว้)
+- **ThemeProvider state** — topbar กับ Settings ใช้ context เดียวกัน ต้อง sync (T1 ทำให้ทั้งคู่อ่าน/เขียน context+localStorage ตัวเดียว)
+- **ห้ามแก้ `dashboard.css`** — สไตล์ใหม่อยู่ใน `settings.css` เท่านั้น
+- **dual-mode** — ทุก commit ต้องรันโหมด mock ได้ (เช็คก่อน commit ทุกครั้ง)
