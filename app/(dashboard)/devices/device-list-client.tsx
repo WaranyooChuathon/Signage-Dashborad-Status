@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useLang } from '@/lib/i18n/language-provider'
 import type { DeviceLog } from '@/types/database'
 import DeviceSidePanel from './device-side-panel'
 import './devices.css'
@@ -8,6 +9,7 @@ import './devices.css'
 const PAGE_SIZE = 10
 
 export default function DeviceListClient({ devices }: { devices: DeviceLog[] }) {
+  const { t, lang } = useLang()
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState<'all' | 'Online' | 'Offline'>('all')
   const [page, setPage] = useState(0)
@@ -60,7 +62,7 @@ export default function DeviceListClient({ devices }: { devices: DeviceLog[] }) 
             <div className="dl-sum-dot all" />
             <div>
               <div className="dl-sum-val all-text">{devices.length}</div>
-              <div className="dl-sum-label">ทั้งหมด</div>
+              <div className="dl-sum-label">{t('dt.all')}</div>
             </div>
           </div>
           <div className="dl-sum-item">
@@ -86,7 +88,7 @@ export default function DeviceListClient({ devices }: { devices: DeviceLog[] }) 
               className={`ptab ${filter === 'all' ? 'active' : ''}`}
               onClick={() => handleFilter('all')}
             >
-              ทั้งหมด <span className="dl-tab-count">{devices.length}</span>
+              {t('dt.all')} <span className="dl-tab-count">{devices.length}</span>
             </button>
             <button
               className={`ptab ${filter === 'Online' ? 'active' : ''}`}
@@ -104,14 +106,14 @@ export default function DeviceListClient({ devices }: { devices: DeviceLog[] }) 
 
           <input
             className="table-search"
-            placeholder="ค้นหา Device / ID / Playlist..."
+            placeholder={t('dev.search')}
             value={search}
             onChange={(e) => handleSearch(e.target.value)}
           />
 
           {search && (
             <button className="dl-clear-btn" onClick={() => handleSearch('')}>
-              ✕ ล้าง
+              ✕ {t('dev.clear')}
             </button>
           )}
         </div>
@@ -127,8 +129,8 @@ export default function DeviceListClient({ devices }: { devices: DeviceLog[] }) 
                   <th>Device ID</th>
                   <th>Playlist</th>
                   <th>Mode</th>
-                  <th>สถานะ</th>
-                  <th>Sync ล่าสุด</th>
+                  <th>{t('dt.status')}</th>
+                  <th>{t('dt.lastSync')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -136,8 +138,8 @@ export default function DeviceListClient({ devices }: { devices: DeviceLog[] }) 
                   <tr>
                     <td colSpan={7} style={{ textAlign: 'center', padding: '50px', color: 'var(--t3)' }}>
                       {search || filter !== 'all'
-                        ? 'ไม่พบอุปกรณ์ที่ตรงกับเงื่อนไข'
-                        : 'ไม่มีข้อมูล'}
+                        ? t('dev.noMatch')
+                        : t('common.noData')}
                     </td>
                   </tr>
                 ) : (
@@ -160,7 +162,7 @@ export default function DeviceListClient({ devices }: { devices: DeviceLog[] }) 
                       </td>
                       <td className="mono">
                         {d.scraped_timestamp
-                          ? new Date(d.scraped_timestamp).toLocaleString('th-TH', {
+                          ? new Date(d.scraped_timestamp).toLocaleString(lang === 'en' ? 'en-GB' : 'th-TH', {
                               day: '2-digit', month: '2-digit',
                               hour: '2-digit', minute: '2-digit',
                             })
@@ -181,7 +183,7 @@ export default function DeviceListClient({ devices }: { devices: DeviceLog[] }) 
                 onClick={() => setPage(Math.max(0, page - 1))}
                 disabled={page === 0}
               >
-                ← ก่อนหน้า
+                {t('common.prev')}
               </button>
               <div className="page-numbers">
                 {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => {
@@ -206,7 +208,7 @@ export default function DeviceListClient({ devices }: { devices: DeviceLog[] }) 
                 onClick={() => setPage(Math.min(totalPages - 1, page + 1))}
                 disabled={page >= totalPages - 1}
               >
-                ถัดไป →
+                {t('common.next')}
               </button>
             </div>
           )}

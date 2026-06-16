@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { useLang } from '@/lib/i18n/language-provider'
 import { TrendingUp, Activity, WifiOff, RefreshCw, Download, MoreHorizontal, ArrowUp, ArrowDown } from 'lucide-react'
 
 import './reports.css'
@@ -23,6 +24,7 @@ export default function ReportsClient({
   initialTrend: TrendRow[]
   initialUptime: UptimeRow[]
 }) {
+  const { t } = useLang()
   const [range, setRange]           = useState('7d')
   const [trend, setTrend]           = useState(initialTrend)
   const [uptime, setUptime]         = useState(initialUptime)
@@ -117,7 +119,7 @@ export default function ReportsClient({
               className={`ptab ${range === k ? 'active' : ''}`}
               onClick={() => changeRange(k)}
             >
-              {k === '7d' ? '7 วัน' : k === '30d' ? '30 วัน' : '90 วัน'}
+              {k === '7d' ? t('rp.range.7d') : k === '30d' ? t('rp.range.30d') : t('rp.range.90d')}
             </button>
           ))}
         </div>
@@ -131,7 +133,7 @@ export default function ReportsClient({
       {loading && (
         <div className="sync-banner">
           <div className="sync-spinner" />
-          กำลังโหลดข้อมูล...
+          {t('rp.loading')}
         </div>
       )}
 
@@ -140,30 +142,30 @@ export default function ReportsClient({
         <div className="kpi kpi-teal">
           <div className="kpi-blob" />
           <div className="kpi-icon-box"><TrendingUp size={18} /></div>
-          <div className="kpi-label">Avg Online / วัน</div>
+          <div className="kpi-label">{t('rp.kpi.avgOnline')}</div>
           <div className="kpi-val">{avgOnline}</div>
-          <div className="kpi-sub">จาก {uptime.length} เครื่องทั้งหมด</div>
+          <div className="kpi-sub">{t('rp.kpi.avgOnlineSub', { n: uptime.length })}</div>
         </div>
         <div className="kpi kpi-ocean">
           <div className="kpi-blob" />
           <div className="kpi-icon-box"><Activity size={18} /></div>
-          <div className="kpi-label">Avg Uptime %</div>
+          <div className="kpi-label">{t('rp.kpi.avgUptime')}</div>
           <div className="kpi-val">{avgUptime}%</div>
-          <div className="kpi-sub">เป้าหมาย ≥ 95%</div>
+          <div className="kpi-sub">{t('dash.kpi.rateSub')}</div>
         </div>
         <div className="kpi kpi-rose">
           <div className="kpi-blob" />
           <div className="kpi-icon-box"><WifiOff size={18} /></div>
-          <div className="kpi-label">Offline Events</div>
+          <div className="kpi-label">{t('rp.kpi.offlineEvents')}</div>
           <div className="kpi-val">{totalOfflineEvents}</div>
-          <div className="kpi-sub">ครั้งในช่วงที่เลือก</div>
+          <div className="kpi-sub">{t('rp.kpi.offlineSub')}</div>
         </div>
         <div className="kpi kpi-indigo">
           <div className="kpi-blob" />
           <div className="kpi-icon-box"><RefreshCw size={18} /></div>
-          <div className="kpi-label">จำนวน Syncs</div>
+          <div className="kpi-label">{t('rp.kpi.syncs')}</div>
           <div className="kpi-val">{totalSyncs}</div>
-          <div className="kpi-sub">Sync ทั้งหมด</div>
+          <div className="kpi-sub">{t('rp.kpi.syncsSub')}</div>
         </div>
       </div>
 
@@ -174,14 +176,14 @@ export default function ReportsClient({
         <div className="card glass rp-trend-card">
           <div className="card-header">
             <div>
-              <div className="card-title">Online / Offline Trend</div>
-              <div className="card-sub">รายวัน — hover เพื่อดูตัวเลข</div>
+              <div className="card-title">{t('rp.trendTitle')}</div>
+              <div className="card-sub">{t('trend.daily')}</div>
             </div>
             <button className="card-menu-btn"><MoreHorizontal size={14} /></button>
           </div>
           <div className="chart-area">
             {trend.length === 0 ? (
-              <div className="chart-empty">ยังไม่มีข้อมูล</div>
+              <div className="chart-empty">{t('common.noData')}</div>
             ) : (
               <div className="chart-scroll">
                 <div className="chart-bars">
@@ -223,14 +225,14 @@ export default function ReportsClient({
             )}
           </div>
           <div className="chart-legend">
-            <div className="leg"><div className="leg-dot green-bg" />Online (max {maxVal})</div>
+            <div className="leg"><div className="leg-dot green-bg" />{t('rp.onlineMax', { n: maxVal })}</div>
             <div className="leg"><div className="leg-dot red-bg" />Offline</div>
             <button
               className={`chart-overlay-btn ${showOverlay ? 'on' : ''}`}
               onClick={() => setShowOverlay((v) => !v)}
             >
               <TrendingUp size={10} strokeWidth={2.5} />
-              {showOverlay ? 'Hide overlay' : 'Show overlay'}
+              {showOverlay ? t('trend.hideOverlay') : t('trend.showOverlay')}
             </button>
           </div>
         </div>
@@ -239,18 +241,18 @@ export default function ReportsClient({
         <div className="card glass rp-uptime-card">
           <div className="card-header">
             <div>
-              <div className="card-title">Uptime % แต่ละเครื่อง</div>
+              <div className="card-title">{t('rp.uptimeTitle')}</div>
               <div className="card-sub">
-                {uptimeSortAsc ? 'เรียงจากต่ำสุด' : 'เรียงจากสูงสุด'} — {sortedUptime.length} เครื่องทั้งหมด
+                {uptimeSortAsc ? t('rp.sortLow') : t('rp.sortHigh')} — {t('rp.devicesAll', { n: sortedUptime.length })}
               </div>
             </div>
             <button
               className="rp-sort-btn"
               onClick={() => { setUptimeSortAsc((v) => !v); setUptimePage(0) }}
-              title={uptimeSortAsc ? 'เรียงจากสูงสุด' : 'เรียงจากต่ำสุด'}
+              title={uptimeSortAsc ? t('rp.sortHigh') : t('rp.sortLow')}
             >
               {uptimeSortAsc ? <ArrowUp size={11} /> : <ArrowDown size={11} />}
-              {uptimeSortAsc ? 'ต่ำ→สูง' : 'สูง→ต่ำ'}
+              {uptimeSortAsc ? t('rp.sortLH') : t('rp.sortHL')}
             </button>
             <button className="card-menu-btn"><MoreHorizontal size={14} /></button>
           </div>
@@ -282,13 +284,13 @@ export default function ReportsClient({
                 className="off-page-btn"
                 onClick={() => setUptimePage(Math.max(0, uptimePage - 1))}
                 disabled={uptimePage === 0}
-              >← ก่อนหน้า</button>
+              >{t('common.prev')}</button>
               <span className="off-page-info">{uptimePage + 1} / {uptimeTotalPages}</span>
               <button
                 className="off-page-btn"
                 onClick={() => setUptimePage(Math.min(uptimeTotalPages - 1, uptimePage + 1))}
                 disabled={uptimePage >= uptimeTotalPages - 1}
-              >ถัดไป →</button>
+              >{t('common.next')}</button>
             </div>
           )}
         </div>
@@ -313,7 +315,7 @@ export default function ReportsClient({
           </div>
           <div className="ct-row">
             <div className="ct-dot" style={{ background: '#3B6CFF' }} />
-            <span className="ct-label">Online rate</span>
+            <span className="ct-label">{t('trend.onlineRate')}</span>
             <span className="ct-val">
               {(() => {
                 const total = tooltip.d.online_count + tooltip.d.offline_count
@@ -329,6 +331,7 @@ export default function ReportsClient({
 
 /* ── Device Stats Table ── */
 function DeviceStatsTable({ uptime }: { uptime: UptimeRow[] }) {
+  const { t } = useLang()
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(0)
   const [sortAsc, setSortAsc] = useState(false)
@@ -351,12 +354,12 @@ function DeviceStatsTable({ uptime }: { uptime: UptimeRow[] }) {
     <div className="device-table-card">
       <div className="device-table-header">
         <div>
-          <div className="card-title">สรุปสถิติแต่ละ Device</div>
-          <div className="card-sub">แสดง {sorted.length} เครื่อง — {sortAsc ? 'เรียงจากต่ำสุด' : 'เรียงจากสูงสุด'}</div>
+          <div className="card-title">{t('rp.statsTitle')}</div>
+          <div className="card-sub">{t('rp.statsShow', { n: sorted.length })} — {sortAsc ? t('rp.sortLow') : t('rp.sortHigh')}</div>
         </div>
         <input
           className="table-search"
-          placeholder="ค้นหา Device..."
+          placeholder={t('dt.search')}
           value={search}
           onChange={(e) => { setSearch(e.target.value); setPage(0); }}
         />
@@ -370,21 +373,21 @@ function DeviceStatsTable({ uptime }: { uptime: UptimeRow[] }) {
               <th
                 className="rp-th-sort"
                 onClick={() => { setSortAsc((v) => !v); setPage(0) }}
-                title={sortAsc ? 'เรียงจากสูงสุด' : 'เรียงจากต่ำสุด'}
+                title={sortAsc ? t('rp.sortHigh') : t('rp.sortLow')}
               >
                 Uptime % {sortAsc ? <ArrowUp size={10} style={{ display: 'inline', verticalAlign: 'middle' }} /> : <ArrowDown size={10} style={{ display: 'inline', verticalAlign: 'middle' }} />}
               </th>
               <th>Online</th>
               <th>Offline</th>
               <th>Total Records</th>
-              <th>สถานะปัจจุบัน</th>
+              <th>{t('rp.statusNow')}</th>
             </tr>
           </thead>
           <tbody>
             {paged.length === 0 ? (
               <tr>
                 <td colSpan={7} style={{ textAlign: 'center', padding: '40px', color: 'var(--muted)' }}>
-                  ไม่พบข้อมูล
+                  {t('rp.noData')}
                 </td>
               </tr>
             ) : (
@@ -395,8 +398,8 @@ function DeviceStatsTable({ uptime }: { uptime: UptimeRow[] }) {
                     <td className="mono">{page * PAGE_SIZE + i + 1}</td>
                     <td className="td-name">{d.device_name ?? d.device_id}</td>
                     <td><span className={`rp-pct-cell ${cls}`}>{d.uptime_pct}%</span></td>
-                    <td className="mono">{d.online_records} ครั้ง</td>
-                    <td className="mono">{d.offline_records} ครั้ง</td>
+                    <td className="mono">{d.online_records} {t('rp.times')}</td>
+                    <td className="mono">{d.offline_records} {t('rp.times')}</td>
                     <td className="mono">{d.total_records}</td>
                     <td>
                       <span className={`status-badge ${d.active_status === 'Online' ? 'on' : 'off'}`}>
@@ -415,7 +418,7 @@ function DeviceStatsTable({ uptime }: { uptime: UptimeRow[] }) {
       {totalPages > 1 && (
         <div className="table-pagination">
           <button className="off-page-btn" onClick={() => setPage(Math.max(0, page - 1))} disabled={page === 0}>
-            ← ก่อนหน้า
+            {t('common.prev')}
           </button>
           <div className="page-numbers">
             {Array.from({ length: Math.min(totalPages, 7) }, (_, idx) => {
@@ -434,7 +437,7 @@ function DeviceStatsTable({ uptime }: { uptime: UptimeRow[] }) {
             })}
           </div>
           <button className="off-page-btn" onClick={() => setPage(Math.min(totalPages - 1, page + 1))} disabled={page >= totalPages - 1}>
-            ถัดไป →
+            {t('common.next')}
           </button>
         </div>
       )}

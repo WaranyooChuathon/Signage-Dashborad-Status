@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { Eye, EyeOff, Shuffle } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { hasSupabaseEnv } from '@/lib/supabase/config'
+import { useLang } from '@/lib/i18n/language-provider'
 import type { Profile } from '@/types/database'
 
 function generatePassword(): string {
@@ -31,6 +32,7 @@ export default function UserModal({
   onSave: () => void
   showToast: (msg: string, type: 'success' | 'error') => void
 }) {
+  const { t } = useLang()
   const isEdit = user !== null
 
   const [name,     setName]     = useState('')
@@ -60,11 +62,11 @@ export default function UserModal({
 
   async function handleSubmit() {
     if (!name || !email || !org) {
-      showToast('กรุณากรอกข้อมูลให้ครบ', 'error')
+      showToast(t('um.toast.fillAll'), 'error')
       return
     }
     if (!isEdit && password.length < 8) {
-      showToast('รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร', 'error')
+      showToast(t('um.toast.pwShort'), 'error')
       return
     }
 
@@ -80,7 +82,7 @@ export default function UserModal({
       if (error) {
         showToast(error.message, 'error')
       } else {
-        showToast('อัปเดตสำเร็จ', 'success')
+        showToast(t('um.toast.updated'), 'success')
         onSave()
       }
     } else {
@@ -94,7 +96,7 @@ export default function UserModal({
           body: JSON.stringify({ email, password, full_name: name, organization: org, role, status }),
         })
         const json = await res.json()
-        if (!res.ok || json.error) errMsg = json.error ?? 'เกิดข้อผิดพลาด'
+        if (!res.ok || json.error) errMsg = json.error ?? t('um.toast.createErr')
       } else {
         const { error } = await supabase
           .from('profiles')
@@ -106,7 +108,7 @@ export default function UserModal({
         showToast(errMsg, 'error')
       } else {
         try { await navigator.clipboard.writeText(password) } catch {}
-        showToast(`สร้าง User สำเร็จ — รหัสผ่าน: ${password} (คัดลอกแล้ว)`, 'success')
+        showToast(t('um.toast.created', { pw: password }), 'success')
         onSave()
       }
     }
@@ -119,35 +121,35 @@ export default function UserModal({
     <div className="um-overlay" onClick={(e) => { if ((e.target as HTMLElement).classList.contains('um-overlay')) onClose() }}>
       <div className="um-modal">
         <button className="um-modal-close" onClick={onClose}>✕</button>
-        <div className="um-modal-title">{isEdit ? 'แก้ไขข้อมูล User' : 'เพิ่ม User ใหม่'}</div>
+        <div className="um-modal-title">{isEdit ? t('um.modal.editTitle') : t('um.modal.addTitle')}</div>
         <div className="um-modal-sub">
-          {isEdit ? `กำลังแก้ไข: ${user?.full_name}` : 'กรอกข้อมูลให้ครบ — รหัสผ่านจะถูกคัดลอกอัตโนมัติเมื่อสร้างสำเร็จ'}
+          {isEdit ? t('um.modal.editSub', { name: user?.full_name ?? '' }) : t('um.modal.addSub')}
         </div>
 
         <div className="um-form-grid">
           <div className="um-field">
-            <label className="um-flabel">ชื่อ-นามสกุล</label>
-            <input className="um-finput" value={name} onChange={(e) => setName(e.target.value)} placeholder="เช่น สมชาย ใจดี" />
+            <label className="um-flabel">{t('um.modal.name')}</label>
+            <input className="um-finput" value={name} onChange={(e) => setName(e.target.value)} placeholder={t('set.placeholder.name')} />
           </div>
           <div className="um-field">
-            <label className="um-flabel">องค์กร / สาขา</label>
-            <input className="um-finput" value={org} onChange={(e) => setOrg(e.target.value)} placeholder="เช่น Aurora City" />
+            <label className="um-flabel">{t('um.modal.org')}</label>
+            <input className="um-finput" value={org} onChange={(e) => setOrg(e.target.value)} placeholder={t('set.placeholder.org')} />
           </div>
           <div className="um-field um-span2">
-            <label className="um-flabel">อีเมล</label>
+            <label className="um-flabel">{t('um.modal.email')}</label>
             <input className="um-finput" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="user@smartsignage.app" disabled={isEdit} />
           </div>
 
           {!isEdit && (
             <div className="um-field um-span2">
-              <label className="um-flabel">รหัสผ่านเริ่มต้น</label>
+              <label className="um-flabel">{t('um.modal.pwLabel')}</label>
               <div className="um-pw-wrap">
                 <input
                   className="um-finput"
                   type={showPw ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="อย่างน้อย 8 ตัวอักษร"
+                  placeholder={t('um.modal.pwPlaceholder')}
                 />
                 <button
                   type="button"
@@ -167,7 +169,7 @@ export default function UserModal({
                 </button>
               </div>
               <div className="um-pw-hint">
-                ตั้งรหัสผ่านชั่วคราวให้ User — หลังสร้างสำเร็จรหัสผ่านจะถูกคัดลอกไป clipboard อัตโนมัติ
+                {t('um.modal.pwHint')}
               </div>
             </div>
           )}
@@ -181,18 +183,18 @@ export default function UserModal({
             </select>
           </div>
           <div className="um-field">
-            <label className="um-flabel">สถานะ</label>
+            <label className="um-flabel">{t('um.modal.statusLabel')}</label>
             <select className="um-fselect" value={status} onChange={(e) => setStatus(e.target.value)}>
-              <option value="active">Active</option>
-              <option value="suspended">Suspended</option>
+              <option value="active">{t('set.status.active')}</option>
+              <option value="suspended">{t('set.status.suspended')}</option>
             </select>
           </div>
         </div>
 
         <div className="um-modal-actions">
-          <button className="um-btn-cancel" onClick={onClose}>ยกเลิก</button>
+          <button className="um-btn-cancel" onClick={onClose}>{t('set.pw.cancel')}</button>
           <button className="um-btn-submit" onClick={handleSubmit} disabled={saving}>
-            {saving ? 'กำลังบันทึก...' : 'บันทึก'}
+            {saving ? t('set.saving') : t('common.save')}
           </button>
         </div>
       </div>

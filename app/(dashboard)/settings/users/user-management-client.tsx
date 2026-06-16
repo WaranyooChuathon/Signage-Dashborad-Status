@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { useLang } from '@/lib/i18n/language-provider'
 import { Users, UserCheck, UserX, Shield, Pencil, Ban, CheckCircle2, Trash2, Plus } from 'lucide-react'
 import type { Profile } from '@/types/database'
 import UserModal from './user-modal'
@@ -9,6 +10,7 @@ import DeleteModal from './delete-modal'
 import './users.css'
 
 export default function UserManagementClient({ initialUsers }: { initialUsers: Profile[] }) {
+  const { t, lang } = useLang()
   const [users, setUsers] = useState(initialUsers)
   const [search, setSearch] = useState('')
   const [filterStatus, setFilterStatus] = useState<'all' | 'active' | 'suspended'>('all')
@@ -68,8 +70,8 @@ export default function UserManagementClient({ initialUsers }: { initialUsers: P
     } else {
       showToast(
         newStatus === 'active'
-          ? `เปิดใช้งาน ${user.full_name} แล้ว`
-          : `ระงับ ${user.full_name} แล้ว`,
+          ? t('um.toast.activated', { name: user.full_name ?? '' })
+          : t('um.toast.suspended', { name: user.full_name ?? '' }),
         newStatus === 'active' ? 'success' : 'error'
       )
       await refreshUsers()
@@ -83,7 +85,7 @@ export default function UserManagementClient({ initialUsers }: { initialUsers: P
     if (error) {
       showToast(error.message, 'error')
     } else {
-      showToast(`ลบ ${deleteUser.full_name} แล้ว`, 'error')
+      showToast(t('um.toast.deleted', { name: deleteUser.full_name ?? '' }), 'error')
       await refreshUsers()
     }
     setDeleteOpen(false)
@@ -113,30 +115,30 @@ export default function UserManagementClient({ initialUsers }: { initialUsers: P
         <div className="kpi kpi-ocean">
           <div className="kpi-blob" />
           <div className="kpi-icon-box"><Users size={18} /></div>
-          <div className="kpi-label">Users ทั้งหมด</div>
+          <div className="kpi-label">{t('um.kpi.total')}</div>
           <div className="kpi-val">{users.length}</div>
-          <div className="kpi-sub">บัญชีในระบบ</div>
+          <div className="kpi-sub">{t('um.kpi.totalSub')}</div>
         </div>
         <div className="kpi kpi-teal">
           <div className="kpi-blob" />
           <div className="kpi-icon-box"><UserCheck size={18} /></div>
-          <div className="kpi-label">Active</div>
+          <div className="kpi-label">{t('set.status.active')}</div>
           <div className="kpi-val">{activeCount}</div>
-          <div className="kpi-sub">ใช้งานอยู่</div>
+          <div className="kpi-sub">{t('um.kpi.activeSub')}</div>
         </div>
         <div className="kpi kpi-rose">
           <div className="kpi-blob" />
           <div className="kpi-icon-box"><UserX size={18} /></div>
-          <div className="kpi-label">Suspended</div>
+          <div className="kpi-label">{t('set.status.suspended')}</div>
           <div className="kpi-val">{suspendedCount}</div>
-          <div className="kpi-sub">ระงับการใช้งาน</div>
+          <div className="kpi-sub">{t('um.kpi.suspendedSub')}</div>
         </div>
         <div className="kpi kpi-indigo">
           <div className="kpi-blob" />
           <div className="kpi-icon-box"><Shield size={18} /></div>
           <div className="kpi-label">Super Admin</div>
           <div className="kpi-val">{saCount}</div>
-          <div className="kpi-sub">สิทธิ์สูงสุด</div>
+          <div className="kpi-sub">{t('um.kpi.saSub')}</div>
         </div>
       </div>
 
@@ -149,7 +151,7 @@ export default function UserManagementClient({ initialUsers }: { initialUsers: P
               className={`ptab ${filterStatus === f ? 'active' : ''}`}
               onClick={() => setFilterStatus(f)}
             >
-              {f === 'all' ? 'ทั้งหมด' : f === 'active' ? 'Active' : 'Suspended'}
+              {f === 'all' ? t('dt.all') : f === 'active' ? t('set.status.active') : t('set.status.suspended')}
             </button>
           ))}
         </div>
@@ -159,7 +161,7 @@ export default function UserManagementClient({ initialUsers }: { initialUsers: P
           value={filterRole}
           onChange={(e) => setFilterRole(e.target.value as typeof filterRole)}
         >
-          <option value="all">ทุก Role</option>
+          <option value="all">{t('um.allRoles')}</option>
           <option value="super_admin">Super Admin</option>
           <option value="admin">Admin</option>
           <option value="viewer">Viewer</option>
@@ -167,7 +169,7 @@ export default function UserManagementClient({ initialUsers }: { initialUsers: P
 
         <input
           className="table-search"
-          placeholder="ค้นหาชื่อ / อีเมล..."
+          placeholder={t('um.search')}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
@@ -177,7 +179,7 @@ export default function UserManagementClient({ initialUsers }: { initialUsers: P
           onClick={() => { setEditUser(null); setModalOpen(true); }}
         >
           <Plus size={14} strokeWidth={2.5} />
-          เพิ่ม User
+          {t('um.add')}
         </button>
       </div>
 
@@ -189,18 +191,18 @@ export default function UserManagementClient({ initialUsers }: { initialUsers: P
               <tr>
                 <th>User</th>
                 <th>Role</th>
-                <th>Organization</th>
-                <th>สถานะ</th>
-                <th>Last Login</th>
-                <th>เข้าร่วม</th>
-                <th>Actions</th>
+                <th>{t('um.th.org')}</th>
+                <th>{t('dt.status')}</th>
+                <th>{t('um.th.lastLogin')}</th>
+                <th>{t('um.th.joined')}</th>
+                <th>{t('um.th.actions')}</th>
               </tr>
             </thead>
             <tbody>
               {filtered.length === 0 ? (
                 <tr>
                   <td colSpan={7} style={{ textAlign: 'center', padding: '50px', color: 'var(--muted)' }}>
-                    ไม่พบ User
+                    {t('um.noUsers')}
                   </td>
                 </tr>
               ) : (
@@ -225,12 +227,12 @@ export default function UserManagementClient({ initialUsers }: { initialUsers: P
                       <td>
                         <span className={`um-status ${isActive ? 'um-active' : 'um-suspended'}`}>
                           <span className={`um-st-dot ${isActive ? 'um-st-on' : ''}`} />
-                          {isActive ? 'Active' : 'Suspended'}
+                          {isActive ? t('set.status.active') : t('set.status.suspended')}
                         </span>
                       </td>
                       <td className="mono">
                         {u.last_login
-                          ? new Date(u.last_login).toLocaleString('th-TH', {
+                          ? new Date(u.last_login).toLocaleString(lang === 'en' ? 'en-GB' : 'th-TH', {
                               day: '2-digit', month: '2-digit',
                               hour: '2-digit', minute: '2-digit',
                             })
@@ -238,7 +240,7 @@ export default function UserManagementClient({ initialUsers }: { initialUsers: P
                       </td>
                       <td className="mono">
                         {u.created_at
-                          ? new Date(u.created_at).toLocaleDateString('th-TH', {
+                          ? new Date(u.created_at).toLocaleDateString(lang === 'en' ? 'en-GB' : 'th-TH', {
                               day: '2-digit', month: '2-digit', year: 'numeric',
                             })
                           : '—'}
@@ -246,20 +248,20 @@ export default function UserManagementClient({ initialUsers }: { initialUsers: P
                       <td>
                         {u.role === 'super_admin' || u.id === currentUserId ? (
                           <span style={{ fontSize: '10px', color: 'var(--muted-2)' }}>
-                            {u.id === currentUserId ? 'บัญชีของคุณ' : 'แก้ไขไม่ได้'}
+                            {u.id === currentUserId ? t('um.yourAccount') : t('um.locked')}
                           </span>
                         ) : (
                           <div className="um-actions">
                             <button className="um-act um-act-edit" onClick={() => { setEditUser(u); setModalOpen(true); }}>
-                              <Pencil size={11} /> แก้ไข
+                              <Pencil size={11} /> {t('um.edit')}
                             </button>
                             <button
                               className={`um-act ${isActive ? 'um-act-suspend' : 'um-act-activate'}`}
                               onClick={() => toggleStatus(u)}
                             >
                               {isActive
-                                ? <><Ban size={11} /> ระงับ</>
-                                : <><CheckCircle2 size={11} /> เปิด</>
+                                ? <><Ban size={11} /> {t('um.suspend')}</>
+                                : <><CheckCircle2 size={11} /> {t('um.activate')}</>
                               }
                             </button>
                             <button className="um-act um-act-del" onClick={() => { setDeleteUser(u); setDeleteOpen(true); }}>

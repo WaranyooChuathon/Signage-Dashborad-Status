@@ -11,7 +11,7 @@ type LanguageContextType = {
 }
 
 const LanguageContext = createContext<LanguageContextType>({
-  lang: 'th',
+  lang: 'en',
   setLang: () => {},
   t: (key) => key,
 })
@@ -21,8 +21,8 @@ export function useLang() {
 }
 
 export default function LanguageProvider({ children }: { children: React.ReactNode }) {
-  // default 'th' ทั้ง server + client → hydration ตรงกัน; อ่าน localStorage ใน effect
-  const [lang, setLangState] = useState<Lang>('th')
+  // default 'en' ทั้ง server + client → hydration ตรงกัน; อ่าน localStorage ใน effect
+  const [lang, setLangState] = useState<Lang>('en')
 
   useEffect(() => {
     const stored = localStorage.getItem('cc-lang') as Lang | null
