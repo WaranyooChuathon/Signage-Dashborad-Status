@@ -60,11 +60,16 @@ npm run build          # ต้องผ่านก่อน commit เสม�
 - [ ] commit message ลงท้าย `Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>`
 
 ## 📋 งานค้าง / ไอเดียอนาคต (Future work)
-- ~~**หน้า Settings (`/settings/profile`)**~~ ✅ เสร็จแล้ว (2026-06-16) — โปรไฟล์/รหัสผ่าน/ธีม+ภาษา/noti prefs (ดู CHANGELOG)
-- ปุ่ม **Notifications** (topbar) ยังเป็น decorative — ทำ dropdown/หน้าแจ้งเตือนจริงได้
-- ช่อง **Quick find / ⌘K** ใน sidebar เป็น `readonly` — ทำ command palette จริง
-- ลิงก์ **"ลืมรหัสผ่าน?"** ในหน้า login ยังไม่ทำงาน — ต่อ Supabase reset password
-- ปุ่ม **"Sync ตอนนี้"** เป็นการ simulate (คืนเวลาปัจจุบัน) — ไม่มี scraper จริงใน demo
+> ✅ งานค้างเดิมทั้งหมดเสร็จแล้ว (2026-06-16) — ดูรายละเอียดใน CHANGELOG
+- ~~**หน้า Settings (`/settings/profile`)**~~ ✅ — โปรไฟล์/รหัสผ่าน/ธีม+ภาษา/noti prefs
+- ~~ปุ่ม **Notifications** (topbar)~~ ✅ — dropdown แจ้งเตือนจริงจาก device offline + mark-as-read
+- ~~ช่อง **Quick find / ⌘K**~~ ✅ — command palette จริง (นำทาง/สลับธีม/sign out)
+- ~~ลิงก์ **"ลืมรหัสผ่าน?"**~~ ✅ — reset flow + หน้า `/reset-password` (dual-mode)
+- ~~ปุ่ม **"Sync ตอนนี้"**~~ ✅ — real mode เขียน snapshot ใหม่ (จำลอง scraper); mock simulate
+- **ไอเดียถัดไป:** i18n เต็มรูปแบบ (ตอนนี้ภาษาเป็น preference), command palette ค้นหา device,
+  notification แบบ realtime (Supabase subscription)
+
+> ⚠️ real mode ต้องตั้งค่าเพิ่ม: เพิ่ม `<origin>/reset-password` ใน Supabase Auth redirect URLs
 
 ## ⛔ ข้อห้าม
 - ห้ามแตะ repo/โฟลเดอร์งานบริษัท (`signage-status-clude`) — โปรเจกต์นี้แยกขาดแล้ว

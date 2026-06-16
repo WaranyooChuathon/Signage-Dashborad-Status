@@ -1,5 +1,44 @@
 # Changelog — Smart Signage Dashboard
 
+## 2026-06-16 — งานค้าง 4 ฟีเจอร์ (Notifications · ⌘K · Reset password · Sync)
+
+> ปิดงานค้างเดิมทั้งหมดใน CLAUDE.md (Future work) · ผ่าน `/plan → /build` · ทุกฟีเจอร์ dual-mode
+
+### F1 — Notification dropdown (topbar Bell)
+- `components/dashboard/notification-menu.tsx` (ใหม่) — ดึง `get_latest_status` → filter offline →
+  dropdown list (device name/id/เวลา); badge นับ unread; "อ่านแล้วทั้งหมด" เก็บ `localStorage 'cc-noti-read'`;
+  ปิดเมื่อคลิกนอก/Esc; empty state
+- `notification.css` (ใหม่) + `topbar.tsx` แทนปุ่ม Bell decorative
+- ✅ verify: mock — badge=5 ตรง offline count, list ตรงกับ dashboard, mark read → badge หาย + persist
+
+### F2 — Command palette (⌘K)
+- `components/dashboard/command-palette.tsx` (ใหม่) — เปิดด้วย ⌘K/Ctrl+K หรือคลิก Quick find (window event);
+  นำทาง Dashboard/Devices/Reports/Users/Settings + สลับธีม + sign out; keyboard nav (↑/↓/Enter), Esc/คลิกนอกปิด
+- `command-palette.css` (ใหม่); `layout.tsx` mount; `sidebar.tsx` Quick find readonly → ปุ่มเปิด palette
+- ✅ verify: mock — เปิดได้, filter "report" → Reports, Enter นำทาง /reports
+
+### F3 — ลืมรหัสผ่าน + `/reset-password`
+- `login-form.tsx` — "ลืมรหัสผ่าน?" → ฟอร์มอีเมล → `resetPasswordForEmail(redirectTo=/reset-password)`
+- `app/reset-password/` (ใหม่) — หน้าตั้งรหัสใหม่ → `updateUser({password})`, validate ≥8+ตรงกัน → /login
+- `proxy.ts` — อนุญาต `/reset-password` เป็น public (recovery token อยู่ใน URL hash)
+- `lib/mock/client.ts` — เพิ่ม `resetPasswordForEmail` stub
+- ✅ verify: mock — forgot → success; reset-password validate + สำเร็จ → redirect /login
+- ⚠️ real: ต้องเพิ่ม `<origin>/reset-password` ใน Supabase Auth redirect URLs
+
+### F4 — Sync จริง
+- `app/api/sync/route.ts` — real (service_role): generate snapshot ปัจจุบันต่อ device
+  (reuse `getDevices` + สุ่มพลิกสถานะ ~12%) insert `device_logs` (now) → `get_latest_status` คืนข้อมูลใหม่จริง;
+  mock: simulate success. ข้อมูลสมมติล้วน (company-safe)
+- ✅ verify: mock — /api/sync 200 simulate, ปุ่ม Sync ไม่ crash
+
+| ไฟล์ใหม่ | | ไฟล์แก้ |
+|---|---|---|
+| notification-menu.tsx, notification.css | | topbar.tsx, sidebar.tsx, layout.tsx |
+| command-palette.tsx, command-palette.css | | login-form.tsx, proxy.ts, lib/mock/client.ts |
+| app/reset-password/{page,reset-password-form}.tsx | | app/api/sync/route.ts |
+
+---
+
 ## 2026-06-16 — หน้า Settings (`/settings/profile`)
 
 > งานค้างข้อแรกจาก CLAUDE.md (Future work) — เดิม sidebar/topbar ลิงก์อยู่แล้วแต่ไม่มี page → 404
