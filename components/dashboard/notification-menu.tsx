@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Bell, WifiOff, Check } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { useLang } from '@/lib/i18n/language-provider'
 import type { DeviceLog } from '@/types/database'
 import './notification.css'
 
@@ -11,6 +12,7 @@ import './notification.css'
 const ACK_KEY = 'cc-noti-read'
 
 export default function NotificationMenu() {
+  const { t } = useLang()
   const [offline, setOffline] = useState<DeviceLog[]>([])
   const [acked, setAcked]     = useState<string[]>([])
   const [open, setOpen]       = useState(false)
@@ -61,9 +63,9 @@ export default function NotificationMenu() {
     <div className="noti-wrap" ref={ref}>
       <button
         className={`tb-icon-btn noti-btn${open ? ' tb-dark-active' : ''}`}
-        title="การแจ้งเตือน"
+        title={t('noti.title')}
         onClick={() => setOpen((v) => !v)}
-        aria-label={`การแจ้งเตือน ${unreadCount} รายการ`}
+        aria-label={`${t('noti.aria')} ${unreadCount}`}
       >
         <Bell size={16} strokeWidth={1.6} />
         {unreadCount > 0 && (
@@ -75,12 +77,12 @@ export default function NotificationMenu() {
         <div className="noti-panel" role="menu">
           <div className="noti-head">
             <span className="noti-title">
-              การแจ้งเตือน
+              {t('noti.title')}
               {unreadCount > 0 && <span className="noti-count">{unreadCount}</span>}
             </span>
             {unreadCount > 0 && (
               <button className="noti-mark" onClick={markAllRead}>
-                <Check size={12} strokeWidth={2.2} /> อ่านแล้วทั้งหมด
+                <Check size={12} strokeWidth={2.2} /> {t('noti.markAll')}
               </button>
             )}
           </div>
@@ -89,8 +91,8 @@ export default function NotificationMenu() {
             {offline.length === 0 ? (
               <div className="noti-empty">
                 <Check size={20} strokeWidth={1.8} />
-                <span>ไม่มีการแจ้งเตือน</span>
-                <span className="noti-empty-sub">อุปกรณ์ออนไลน์ครบทุกเครื่อง 🎉</span>
+                <span>{t('noti.empty')}</span>
+                <span className="noti-empty-sub">{t('noti.emptySub')}</span>
               </div>
             ) : (
               offline.map((d) => {
@@ -100,7 +102,7 @@ export default function NotificationMenu() {
                     <div className="noti-ico"><WifiOff size={14} strokeWidth={1.8} /></div>
                     <div className="noti-body">
                       <div className="noti-dev">{d.device_name ?? d.device_id ?? 'ไม่ทราบชื่อ'}</div>
-                      <div className="noti-meta">{d.device_id} · ออฟไลน์</div>
+                      <div className="noti-meta">{d.device_id} · {t('noti.offline')}</div>
                     </div>
                     <div className="noti-time">{fmtTime(d.scraped_timestamp)}</div>
                   </div>

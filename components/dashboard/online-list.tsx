@@ -2,11 +2,13 @@
 
 import { useState } from 'react'
 import { CheckCircle2, MoreHorizontal } from 'lucide-react'
+import { useLang } from '@/lib/i18n/language-provider'
 import type { DeviceLog } from '@/types/database'
 
 const PAGE_SIZE = 5
 
 export default function OnlineList({ devices }: { devices: DeviceLog[] }) {
+  const { t } = useLang()
   const [page, setPage] = useState(0)
   const totalPages = Math.ceil(devices.length / PAGE_SIZE)
   const paged = devices.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE)
@@ -17,19 +19,19 @@ export default function OnlineList({ devices }: { devices: DeviceLog[] }) {
         <div>
           <div className="card-title">
             <CheckCircle2 size={14} strokeWidth={2} style={{ color: 'var(--on)', flexShrink: 0 }} />
-            Device ที่ Online
+            {t('dash.onlineCard')}
           </div>
-          <div className="card-sub">ทำงานปกติ</div>
+          <div className="card-sub">{t('dash.onlineSub')}</div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span className="on-badge">{devices.length} เครื่อง</span>
+          <span className="on-badge">{devices.length} {t('common.unit')}</span>
           <button className="card-menu-btn"><MoreHorizontal size={14} /></button>
         </div>
       </div>
 
       <div className="online-list">
         {devices.length === 0 ? (
-          <div className="off-empty">ยังไม่มีข้อมูล</div>
+          <div className="off-empty">{t('common.noData')}</div>
         ) : (
           paged.map((d, i) => (
             <div key={d.id ?? i} className="on-item">
@@ -58,7 +60,7 @@ export default function OnlineList({ devices }: { devices: DeviceLog[] }) {
             onClick={() => setPage(Math.max(0, page - 1))}
             disabled={page === 0}
           >
-            ← ก่อนหน้า
+            {t('common.prev')}
           </button>
           <span className="off-page-info">{page + 1} / {totalPages}</span>
           <button
@@ -66,7 +68,7 @@ export default function OnlineList({ devices }: { devices: DeviceLog[] }) {
             onClick={() => setPage(Math.min(totalPages - 1, page + 1))}
             disabled={page >= totalPages - 1}
           >
-            ถัดไป →
+            {t('common.next')}
           </button>
         </div>
       )}

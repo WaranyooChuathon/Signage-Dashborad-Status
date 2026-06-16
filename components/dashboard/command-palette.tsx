@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { useTheme } from './theme-provider'
+import { useLang } from '@/lib/i18n/language-provider'
 import {
   LayoutDashboard, Monitor, BarChart2, Users, Settings,
   Sun, Moon, LogOut, Search, CornerDownLeft,
@@ -26,20 +27,21 @@ export const OPEN_PALETTE_EVENT = 'cc:open-palette'
 export default function CommandPalette() {
   const router = useRouter()
   const { theme, toggleTheme } = useTheme()
+  const { t } = useLang()
   const [open, setOpen]     = useState(false)
   const [query, setQuery]   = useState('')
   const [active, setActive] = useState(0)
   const inputRef = useRef<HTMLInputElement>(null)
 
   const commands = useMemo<Cmd[]>(() => [
-    { id: 'dash', label: 'Dashboard',       hint: 'ภาพรวม',   Icon: LayoutDashboard, keywords: 'dashboard home แดชบอร์ด ภาพรวม', run: () => router.push('/dashboard') },
-    { id: 'dev',  label: 'Device List',     hint: 'อุปกรณ์',  Icon: Monitor,         keywords: 'device อุปกรณ์ จอ list', run: () => router.push('/devices') },
-    { id: 'rep',  label: 'Reports',         hint: 'รายงาน',   Icon: BarChart2,       keywords: 'report รายงาน สถิติ uptime', run: () => router.push('/reports') },
-    { id: 'usr',  label: 'User Management', hint: 'ผู้ใช้',    Icon: Users,           keywords: 'user ผู้ใช้ สิทธิ์ role จัดการ', run: () => router.push('/settings/users') },
-    { id: 'set',  label: 'Settings',        hint: 'ตั้งค่า',   Icon: Settings,        keywords: 'settings ตั้งค่า โปรไฟล์ profile รหัสผ่าน', run: () => router.push('/settings/profile') },
-    { id: 'theme', label: theme === 'dark' ? 'สลับเป็นโหมดสว่าง' : 'สลับเป็นโหมดมืด', hint: 'ธีม', Icon: theme === 'dark' ? Sun : Moon, keywords: 'theme dark light ธีม สลับ', run: toggleTheme },
-    { id: 'out',  label: 'ออกจากระบบ',      hint: 'Sign out', Icon: LogOut,          keywords: 'logout sign out ออกจากระบบ', run: async () => { const s = createClient(); await s.auth.signOut(); router.push('/login') } },
-  ], [router, theme, toggleTheme])
+    { id: 'dash', label: t('nav.dashboard'), hint: t('cmd.hint.overview'), Icon: LayoutDashboard, keywords: 'dashboard home แดชบอร์ด ภาพรวม', run: () => router.push('/dashboard') },
+    { id: 'dev',  label: t('nav.devices'),   hint: t('cmd.hint.devices'),  Icon: Monitor,         keywords: 'device อุปกรณ์ จอ list', run: () => router.push('/devices') },
+    { id: 'rep',  label: t('nav.reports'),   hint: t('cmd.hint.reports'),  Icon: BarChart2,       keywords: 'report รายงาน สถิติ uptime', run: () => router.push('/reports') },
+    { id: 'usr',  label: t('nav.users'),     hint: t('cmd.hint.users'),    Icon: Users,           keywords: 'user ผู้ใช้ สิทธิ์ role จัดการ', run: () => router.push('/settings/users') },
+    { id: 'set',  label: t('nav.settings'),  hint: t('cmd.hint.settings'), Icon: Settings,        keywords: 'settings ตั้งค่า โปรไฟล์ profile รหัสผ่าน', run: () => router.push('/settings/profile') },
+    { id: 'theme', label: theme === 'dark' ? t('cmd.themeToLight') : t('cmd.themeToDark'), hint: t('cmd.hint.theme'), Icon: theme === 'dark' ? Sun : Moon, keywords: 'theme dark light ธีม สลับ', run: toggleTheme },
+    { id: 'out',  label: t('cmd.signOut'),   hint: 'Sign out', Icon: LogOut,          keywords: 'logout sign out ออกจากระบบ', run: async () => { const s = createClient(); await s.auth.signOut(); router.push('/login') } },
+  ], [router, theme, toggleTheme, t])
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
@@ -102,7 +104,7 @@ export default function CommandPalette() {
           <input
             ref={inputRef}
             className="cmd-input"
-            placeholder="ค้นหาหน้า / คำสั่ง..."
+            placeholder={t('cmd.placeholder')}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={onInputKey}
@@ -112,7 +114,7 @@ export default function CommandPalette() {
 
         <div className="cmd-list">
           {filtered.length === 0 ? (
-            <div className="cmd-empty">ไม่พบคำสั่งสำหรับ “{query}”</div>
+            <div className="cmd-empty">{t('cmd.empty')} “{query}”</div>
           ) : (
             filtered.map((c, i) => {
               const Icon = c.Icon
@@ -134,9 +136,9 @@ export default function CommandPalette() {
         </div>
 
         <div className="cmd-foot">
-          <span><kbd>↑</kbd><kbd>↓</kbd> เลือก</span>
-          <span><kbd>↵</kbd> เปิด</span>
-          <span><kbd>esc</kbd> ปิด</span>
+          <span><kbd>↑</kbd><kbd>↓</kbd> {t('cmd.select')}</span>
+          <span><kbd>↵</kbd> {t('cmd.open')}</span>
+          <span><kbd>esc</kbd> {t('cmd.close')}</span>
         </div>
       </div>
     </div>

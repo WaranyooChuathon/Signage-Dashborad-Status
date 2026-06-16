@@ -3,13 +3,14 @@
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useTheme } from '@/components/dashboard/theme-provider'
+import { useLang } from '@/lib/i18n/language-provider'
+import type { Lang } from '@/lib/i18n/dict'
 import {
   User, Lock, Palette, Bell, Eye, EyeOff, Sun, Moon, Save, Shield,
 } from 'lucide-react'
 import type { Profile } from '@/types/database'
 import './settings.css'
 
-type Lang = 'th' | 'en'
 type NotiPrefs = {
   deviceOffline: boolean
   dailyEmail: boolean
@@ -30,6 +31,7 @@ const roleInfo: Record<string, { cls: string; label: string }> = {
 
 export default function SettingsClient({ initialProfile }: { initialProfile: Profile }) {
   const { theme, setTheme } = useTheme()
+  const { lang, setLang, t } = useLang()
 
   // ── Profile ──
   const [fullName, setFullName] = useState(initialProfile.full_name ?? '')
@@ -43,8 +45,7 @@ export default function SettingsClient({ initialProfile }: { initialProfile: Pro
   const [showPw, setShowPw] = useState(false)
   const [savingPw, setSavingPw] = useState(false)
 
-  // ── Appearance / Notifications (preference, client-only) ──
-  const [lang, setLang] = useState<Lang>('th')
+  // ── Notifications (preference, client-only) ──
   const [noti, setNoti] = useState<NotiPrefs>(DEFAULT_NOTI)
   const [mounted, setMounted] = useState(false)
 
@@ -55,11 +56,9 @@ export default function SettingsClient({ initialProfile }: { initialProfile: Pro
     setTimeout(() => setToast(null), 3000)
   }
 
-  // โหลด preference จาก localStorage (client เท่านั้น — เลี่ยง SSR mismatch)
+  // โหลด noti preference จาก localStorage (client เท่านั้น — เลี่ยง SSR mismatch)
   useEffect(() => {
     setMounted(true)
-    const storedLang = localStorage.getItem('cc-lang') as Lang | null
-    if (storedLang === 'th' || storedLang === 'en') setLang(storedLang)
     try {
       const storedNoti = localStorage.getItem('cc-noti')
       if (storedNoti) setNoti({ ...DEFAULT_NOTI, ...JSON.parse(storedNoti) })
@@ -76,7 +75,7 @@ export default function SettingsClient({ initialProfile }: { initialProfile: Pro
   // ── Profile save ──
   async function saveProfile() {
     if (!fullName.trim()) {
-      showToast('กรุณากรอกชื่อ-นามสกุล', 'error')
+      showToast(t('set.toast.nameRequired'), 'error')
       return
     }
     setSavingProfile(true)
@@ -88,17 +87,17 @@ export default function SettingsClient({ initialProfile }: { initialProfile: Pro
     setSavingProfile(false)
 
     if (error) showToast(error.message, 'error')
-    else showToast('บันทึกโปรไฟล์สำเร็จ', 'success')
+    else showToast(t('set.toast.profileSaved'), 'success')
   }
 
   // ── Password change ──
   async function changePassword() {
     if (pw.length < 8) {
-      showToast('รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร', 'error')
+      showToast(t('set.pw.tooShort'), 'error')
       return
     }
     if (pw !== pw2) {
-      showToast('รหัสผ่านทั้งสองช่องไม่ตรงกัน', 'error')
+      showToast(t('set.pw.mismatch'), 'error')
       return
     }
     setSavingPw(true)
@@ -109,7 +108,7 @@ export default function SettingsClient({ initialProfile }: { initialProfile: Pro
     if (error) {
       showToast(error.message, 'error')
     } else {
-      showToast('เปลี่ยนรหัสผ่านสำเร็จ', 'success')
+      showToast(t('set.pw.success'), 'success')
       setPw(''); setPw2(''); setShowPw(false); setPwOpen(false)
     }
   }
@@ -121,8 +120,7 @@ export default function SettingsClient({ initialProfile }: { initialProfile: Pro
   // ── Appearance / Noti handlers ──
   function changeLang(next: Lang) {
     setLang(next)
-    localStorage.setItem('cc-lang', next)
-    showToast(next === 'th' ? 'เปลี่ยนภาษาเป็นไทย' : 'Language set to English', 'success')
+    showToast(next === 'th' ? t('set.lang.changedTh') : t('set.lang.changedEn'), 'success')
   }
 
   function toggleNoti(key: keyof NotiPrefs) {
@@ -131,6 +129,12 @@ export default function SettingsClient({ initialProfile }: { initialProfile: Pro
     localStorage.setItem('cc-noti', JSON.stringify(next))
   }
 
+  const notiItems = [
+    { key: 'deviceOffline', title: t('set.noti.offline'), sub: t('set.noti.offlineSub') },
+    { key: 'dailyEmail',    title: t('set.noti.daily'),   sub: t('set.noti.dailySub') },
+    { key: 'weeklyReport',  title: t('set.noti.weekly'),  sub: t('set.noti.weeklySub') },
+  ] as const
+
   return (
     <div className="set-wrap">
       {/* ── Profile ── */}
@@ -138,42 +142,42 @@ export default function SettingsClient({ initialProfile }: { initialProfile: Pro
         <div className="set-card-head">
           <div className="set-card-icon"><User size={18} strokeWidth={1.8} /></div>
           <div>
-            <div className="set-card-title">ข้อมูลโปรไฟล์</div>
-            <div className="set-card-sub">แก้ไขชื่อและองค์กรของคุณ</div>
+            <div className="set-card-title">{t('set.profile.title')}</div>
+            <div className="set-card-sub">{t('set.profile.sub')}</div>
           </div>
         </div>
 
         <div className="set-form-grid">
           <div className="set-field">
-            <label className="set-label">ชื่อ-นามสกุล</label>
+            <label className="set-label">{t('set.field.name')}</label>
             <input
               className="set-input"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
-              placeholder="เช่น สมชาย ใจดี"
+              placeholder={t('set.placeholder.name')}
             />
           </div>
           <div className="set-field">
-            <label className="set-label">องค์กร / สาขา</label>
+            <label className="set-label">{t('set.field.org')}</label>
             <input
               className="set-input"
               value={org}
               onChange={(e) => setOrg(e.target.value)}
-              placeholder="เช่น Aurora City"
+              placeholder={t('set.placeholder.org')}
             />
           </div>
           <div className="set-field">
-            <label className="set-label">อีเมล</label>
+            <label className="set-label">{t('set.field.email')}</label>
             <input className="set-input" value={initialProfile.email ?? '—'} disabled readOnly />
           </div>
           <div className="set-field">
-            <label className="set-label">สิทธิ์ / สถานะ</label>
+            <label className="set-label">{t('set.field.roleStatus')}</label>
             <div className="set-role-row">
               <span className={`set-role-badge ${ri.cls}`}>
                 <Shield size={12} /> {ri.label}
               </span>
               <span className={`set-status ${initialProfile.status === 'active' ? 'is-active' : 'is-suspended'}`}>
-                {initialProfile.status === 'active' ? 'Active' : 'Suspended'}
+                {initialProfile.status === 'active' ? t('set.status.active') : t('set.status.suspended')}
               </span>
             </div>
           </div>
@@ -186,7 +190,7 @@ export default function SettingsClient({ initialProfile }: { initialProfile: Pro
             disabled={savingProfile || !profileDirty}
           >
             <Save size={14} strokeWidth={2} />
-            {savingProfile ? 'กำลังบันทึก...' : 'บันทึกโปรไฟล์'}
+            {savingProfile ? t('set.saving') : t('set.save')}
           </button>
         </div>
       </section>
@@ -196,9 +200,9 @@ export default function SettingsClient({ initialProfile }: { initialProfile: Pro
         <div className="set-card-head">
           <div className="set-card-icon"><Lock size={18} strokeWidth={1.8} /></div>
           <div>
-            <div className="set-card-title">เปลี่ยนรหัสผ่าน</div>
+            <div className="set-card-title">{t('set.pw.title')}</div>
             <div className="set-card-sub">
-              {pwOpen ? 'อย่างน้อย 8 ตัวอักษร' : 'ปกป้องบัญชีของคุณด้วยรหัสผ่านที่รัดกุม'}
+              {pwOpen ? t('set.pw.subOpen') : t('set.pw.subClosed')}
             </div>
           </div>
         </div>
@@ -207,14 +211,14 @@ export default function SettingsClient({ initialProfile }: { initialProfile: Pro
           <div className="set-actions" style={{ marginTop: 0 }}>
             <button className="set-btn-secondary" onClick={() => setPwOpen(true)}>
               <Lock size={14} strokeWidth={2} />
-              เปลี่ยนรหัสผ่าน
+              {t('set.pw.change')}
             </button>
           </div>
         ) : (
           <>
             <div className="set-form-grid">
               <div className="set-field">
-                <label className="set-label">รหัสผ่านใหม่</label>
+                <label className="set-label">{t('set.pw.new')}</label>
                 <div className="set-pw-wrap">
                   <input
                     className="set-input"
@@ -228,14 +232,13 @@ export default function SettingsClient({ initialProfile }: { initialProfile: Pro
                     type="button"
                     className="set-pw-btn"
                     onClick={() => setShowPw((v) => !v)}
-                    title={showPw ? 'ซ่อนรหัสผ่าน' : 'แสดงรหัสผ่าน'}
                   >
                     {showPw ? <EyeOff size={14} /> : <Eye size={14} />}
                   </button>
                 </div>
               </div>
               <div className="set-field">
-                <label className="set-label">ยืนยันรหัสผ่านใหม่</label>
+                <label className="set-label">{t('set.pw.confirm')}</label>
                 <input
                   className="set-input"
                   type={showPw ? 'text' : 'password'}
@@ -248,11 +251,11 @@ export default function SettingsClient({ initialProfile }: { initialProfile: Pro
 
             <div className="set-actions" style={{ gap: 8 }}>
               <button className="set-btn-secondary" onClick={cancelPassword} disabled={savingPw}>
-                ยกเลิก
+                {t('set.pw.cancel')}
               </button>
               <button className="set-btn-primary" onClick={changePassword} disabled={savingPw}>
                 <Lock size={14} strokeWidth={2} />
-                {savingPw ? 'กำลังเปลี่ยน...' : 'บันทึกรหัสผ่านใหม่'}
+                {savingPw ? t('set.pw.changing') : t('set.pw.saveNew')}
               </button>
             </div>
           </>
@@ -264,45 +267,44 @@ export default function SettingsClient({ initialProfile }: { initialProfile: Pro
         <div className="set-card-head">
           <div className="set-card-icon"><Palette size={18} strokeWidth={1.8} /></div>
           <div>
-            <div className="set-card-title">การแสดงผล</div>
-            <div className="set-card-sub">ธีมและภาษา</div>
+            <div className="set-card-title">{t('set.appearance.title')}</div>
+            <div className="set-card-sub">{t('set.appearance.sub')}</div>
           </div>
         </div>
 
         <div className="set-row">
           <div>
-            <div className="set-row-title">ธีม</div>
-            <div className="set-row-sub">เลือกโหมดสว่างหรือมืด</div>
+            <div className="set-row-title">{t('set.theme')}</div>
+            <div className="set-row-sub">{t('set.themeSub')}</div>
           </div>
           <div className="set-seg">
             <button
               className={`set-seg-btn${theme === 'light' ? ' active' : ''}`}
               onClick={() => setTheme('light')}
             >
-              <Sun size={14} /> Light
+              <Sun size={14} /> {t('set.theme.light')}
             </button>
             <button
               className={`set-seg-btn${theme === 'dark' ? ' active' : ''}`}
               onClick={() => setTheme('dark')}
             >
-              <Moon size={14} /> Dark
+              <Moon size={14} /> {t('set.theme.dark')}
             </button>
           </div>
         </div>
 
         <div className="set-row">
           <div>
-            <div className="set-row-title">ภาษา</div>
-            <div className="set-row-sub">ภาษาที่ต้องการใช้งาน</div>
+            <div className="set-row-title">{t('set.lang')}</div>
+            <div className="set-row-sub">{t('set.langSub')}</div>
           </div>
           <select
             className="set-select"
             value={lang}
             onChange={(e) => changeLang(e.target.value as Lang)}
-            suppressHydrationWarning
           >
-            <option value="th">ไทย</option>
-            <option value="en">English</option>
+            <option value="th">{t('set.lang.th')}</option>
+            <option value="en">{t('set.lang.en')}</option>
           </select>
         </div>
       </section>
@@ -312,16 +314,12 @@ export default function SettingsClient({ initialProfile }: { initialProfile: Pro
         <div className="set-card-head">
           <div className="set-card-icon"><Bell size={18} strokeWidth={1.8} /></div>
           <div>
-            <div className="set-card-title">การแจ้งเตือน</div>
-            <div className="set-card-sub">ตั้งค่าการรับแจ้งเตือน</div>
+            <div className="set-card-title">{t('set.noti.title')}</div>
+            <div className="set-card-sub">{t('set.noti.sub')}</div>
           </div>
         </div>
 
-        {([
-          { key: 'deviceOffline', title: 'แจ้งเตือนเมื่อ device offline', sub: 'รับแจ้งเตือนทันทีเมื่ออุปกรณ์ขาดการเชื่อมต่อ' },
-          { key: 'dailyEmail',    title: 'สรุปรายวันทางอีเมล',          sub: 'รับอีเมลสรุปสถานะทุกเช้า' },
-          { key: 'weeklyReport',  title: 'รายงานประจำสัปดาห์',          sub: 'สรุป uptime และเหตุการณ์รายสัปดาห์' },
-        ] as const).map(({ key, title, sub }) => (
+        {notiItems.map(({ key, title, sub }) => (
           <div className="set-row" key={key}>
             <div>
               <div className="set-row-title">{title}</div>

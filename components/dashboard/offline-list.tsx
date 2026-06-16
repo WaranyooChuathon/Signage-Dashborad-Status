@@ -2,11 +2,13 @@
 
 import { useState } from 'react'
 import { AlertTriangle, CheckCircle2, MoreHorizontal } from 'lucide-react'
+import { useLang } from '@/lib/i18n/language-provider'
 import type { DeviceLog } from '@/types/database'
 
 const PAGE_SIZE = 5
 
 export default function OfflineList({ devices }: { devices: DeviceLog[] }) {
+  const { t } = useLang()
   const [page, setPage] = useState(0)
   const totalPages = Math.ceil(devices.length / PAGE_SIZE)
   const paged = devices.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE)
@@ -17,12 +19,12 @@ export default function OfflineList({ devices }: { devices: DeviceLog[] }) {
         <div>
           <div className="card-title">
             <AlertTriangle size={14} strokeWidth={2} style={{ color: 'var(--off)', flexShrink: 0 }} />
-            Device ที่ Offline
+            {t('dash.offlineCard')}
           </div>
-          <div className="card-sub">ต้องตรวจสอบ</div>
+          <div className="card-sub">{t('dash.offlineSub')}</div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span className="off-badge">{devices.length} เครื่อง</span>
+          <span className="off-badge">{devices.length} {t('common.unit')}</span>
           <button className="card-menu-btn"><MoreHorizontal size={14} /></button>
         </div>
       </div>
@@ -31,7 +33,7 @@ export default function OfflineList({ devices }: { devices: DeviceLog[] }) {
         {devices.length === 0 ? (
           <div className="off-empty">
             <CheckCircle2 size={22} strokeWidth={1.8} style={{ color: 'var(--on)' }} />
-            ทุกเครื่อง Online อยู่
+            {t('dash.allOnline')}
           </div>
         ) : (
           paged.map((d, i) => (
@@ -61,7 +63,7 @@ export default function OfflineList({ devices }: { devices: DeviceLog[] }) {
             onClick={() => setPage(Math.max(0, page - 1))}
             disabled={page === 0}
           >
-            ← ก่อนหน้า
+            {t('common.prev')}
           </button>
           <span className="off-page-info">{page + 1} / {totalPages}</span>
           <button
@@ -69,7 +71,7 @@ export default function OfflineList({ devices }: { devices: DeviceLog[] }) {
             onClick={() => setPage(Math.min(totalPages - 1, page + 1))}
             disabled={page >= totalPages - 1}
           >
-            ถัดไป →
+            {t('common.next')}
           </button>
         </div>
       )}

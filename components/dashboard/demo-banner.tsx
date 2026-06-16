@@ -1,5 +1,7 @@
 'use client'
 
+import { useLang } from '@/lib/i18n/language-provider'
+
 // ── แก้ลิงก์เหล่านี้เป็นของคุณ ──────────────────────────────
 const PORTFOLIO = {
   name: 'Waranyoo Chuathon',
@@ -9,6 +11,7 @@ const PORTFOLIO = {
 // ───────────────────────────────────────────────────────────
 
 export default function DemoBanner() {
+  const { t } = useLang()
   return (
     <div
       style={{
@@ -29,11 +32,11 @@ export default function DemoBanner() {
         Live Demo
       </span>
       <span style={{ opacity: 0.8 }}>
-        ข้อมูลทั้งหมดเป็นตัวอย่าง — ไม่เชื่อมต่อฐานข้อมูลจริง
+        {t('banner.note')}
       </span>
 
       <span style={{ marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: 14 }}>
-        <span style={{ opacity: 0.85 }}>ผลงานโดย <strong>{PORTFOLIO.name}</strong></span>
+        <span style={{ opacity: 0.85 }}>{t('banner.by')} <strong>{PORTFOLIO.name}</strong></span>
         <a
           href={PORTFOLIO.github}
           target="_blank"

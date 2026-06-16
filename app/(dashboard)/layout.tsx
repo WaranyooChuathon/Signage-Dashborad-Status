@@ -2,6 +2,7 @@ import './dashboard.css'
 import Sidebar from '@/components/dashboard/sidebar'
 import Topbar from '@/components/dashboard/topbar'
 import ThemeProvider from '@/components/dashboard/theme-provider'
+import LanguageProvider from '@/lib/i18n/language-provider'
 import DemoBanner from '@/components/dashboard/demo-banner'
 import CommandPalette from '@/components/dashboard/command-palette'
 
@@ -12,14 +13,16 @@ export default function DashboardLayout({
 }) {
   return (
     <ThemeProvider>
-      <div className="dash-bg" />
-      <Sidebar />
-      <div className="dash-main">
-        <DemoBanner />
-        <Topbar />
-        <div className="dash-content">{children}</div>
-      </div>
-      <CommandPalette />
+      <LanguageProvider>
+        <div className="dash-bg" />
+        <Sidebar />
+        <div className="dash-main">
+          <DemoBanner />
+          <Topbar />
+          <div className="dash-content">{children}</div>
+        </div>
+        <CommandPalette />
+      </LanguageProvider>
     </ThemeProvider>
   )
 }

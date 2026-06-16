@@ -4,25 +4,30 @@ import { useEffect, useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
+import { useLang } from '@/lib/i18n/language-provider'
+import type { DictKey } from '@/lib/i18n/dict'
 import {
   LayoutDashboard, Monitor, BarChart2,
   Users, Settings, LogOut, Search, Tv,
 } from 'lucide-react'
 
-const navItems = [
+const navItems: {
+  labelKey: DictKey
+  items: { href: string; Icon: typeof LayoutDashboard; key: DictKey }[]
+}[] = [
   {
-    label: 'Overview',
+    labelKey: 'nav.overview',
     items: [
-      { href: '/dashboard',        Icon: LayoutDashboard, text: 'Dashboard' },
-      { href: '/devices',          Icon: Monitor,         text: 'Device List' },
-      { href: '/reports',          Icon: BarChart2,       text: 'Reports' },
+      { href: '/dashboard',        Icon: LayoutDashboard, key: 'nav.dashboard' },
+      { href: '/devices',          Icon: Monitor,         key: 'nav.devices' },
+      { href: '/reports',          Icon: BarChart2,       key: 'nav.reports' },
     ],
   },
   {
-    label: 'System',
+    labelKey: 'nav.system',
     items: [
-      { href: '/settings/users',   Icon: Users,    text: 'User Management' },
-      { href: '/settings/profile', Icon: Settings, text: 'Settings' },
+      { href: '/settings/users',   Icon: Users,    key: 'nav.users' },
+      { href: '/settings/profile', Icon: Settings, key: 'nav.settings' },
     ],
   },
 ]
@@ -32,6 +37,7 @@ const allItems = navItems.flatMap((s) => s.items)
 export default function Sidebar() {
   const pathname = usePathname()
   const router   = useRouter()
+  const { t }    = useLang()
   const [userEmail,   setUserEmail]   = useState<string | null>(null)
   const [userInitial, setUserInitial] = useState('A')
 
@@ -59,14 +65,14 @@ export default function Sidebar() {
           <Tv size={18} strokeWidth={1.6} color="#fff" />
         </div>
 
-        {allItems.map(({ href, Icon, text }) => {
+        {allItems.map(({ href, Icon, key }) => {
           const active = pathname === href
           return (
             <Link
               key={href}
               href={href}
               className={`sb-rail-btn${active ? ' active' : ''}`}
-              title={text}
+              title={t(key)}
             >
               <Icon size={18} strokeWidth={active ? 2 : 1.6} />
             </Link>
@@ -99,15 +105,15 @@ export default function Sidebar() {
           onClick={() => window.dispatchEvent(new CustomEvent('cc:open-palette'))}
         >
           <Search size={14} strokeWidth={1.8} />
-          <span className="sb-search-input sb-search-placeholder">Quick find…</span>
+          <span className="sb-search-input sb-search-placeholder">{t('sb.quickFind')}</span>
           <span className="sb-search-kbd">⌘K</span>
         </button>
 
         <nav className="sb-nav">
           {navItems.map((section) => (
-            <div key={section.label} className="sb-section">
-              <div className="sb-label">{section.label}</div>
-              {section.items.map(({ href, Icon, text }) => {
+            <div key={section.labelKey} className="sb-section">
+              <div className="sb-label">{t(section.labelKey)}</div>
+              {section.items.map(({ href, Icon, key }) => {
                 const active = pathname === href
                 return (
                   <Link
@@ -118,7 +124,7 @@ export default function Sidebar() {
                     <span className="sb-item-icon">
                       <Icon size={16} strokeWidth={active ? 2 : 1.6} />
                     </span>
-                    {text}
+                    {t(key)}
                   </Link>
                 )
               })}
@@ -131,12 +137,12 @@ export default function Sidebar() {
             <div className="sb-avatar">{userInitial}</div>
             <div className="sb-user-info">
               <div className="sb-uname">{userEmail ?? '—'}</div>
-              <div className="sb-urole">Operator</div>
+              <div className="sb-urole">{t('sb.role')}</div>
             </div>
           </div>
           <button className="sb-logout" onClick={handleSignOut}>
             <LogOut size={13} strokeWidth={1.6} />
-            Sign out
+            {t('sb.signOut')}
           </button>
         </div>
       </div>

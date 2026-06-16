@@ -2,15 +2,15 @@
 
 import { useState } from 'react'
 import { format } from 'date-fns'
-import { th } from 'date-fns/locale'
+import { th, enUS } from 'date-fns/locale'
 import { MoreHorizontal, TrendingUp } from 'lucide-react'
+import { useLang } from '@/lib/i18n/language-provider'
+import { MONTHS } from '@/lib/i18n/dict'
 
 type TrendRow = { day: string; online_count: number; offline_count: number }
 type Tooltip = { x: number; y: number; d: TrendRow; label: string } | null
 
-const THAI_MONTHS = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.']
-
-function aggregateMonthly(data: TrendRow[]): Array<TrendRow & { label: string }> {
+function aggregateMonthly(data: TrendRow[], months: string[]): Array<TrendRow & { label: string }> {
   const currentYear = new Date().getFullYear()
   const map = new Map<string, TrendRow>()
   for (let m = 1; m <= 12; m++) {
@@ -24,7 +24,7 @@ function aggregateMonthly(data: TrendRow[]): Array<TrendRow & { label: string }>
   }
   return Array.from(map.values()).map((d) => ({
     ...d,
-    label: THAI_MONTHS[parseInt(d.day.substring(5, 7)) - 1] ?? d.day,
+    label: months[parseInt(d.day.substring(5, 7)) - 1] ?? d.day,
   }))
 }
 
@@ -126,6 +126,7 @@ function DonutChart({ data }: { data: TrendRow[] }) {
 }
 
 export default function TrendChart({ data, period }: { data: TrendRow[]; period: string }) {
+  const { t, lang } = useLang()
   const [tooltip, setTooltip]        = useState<Tooltip>(null)
   const [showOverlay, setShowOverlay] = useState(false)
 
@@ -134,12 +135,12 @@ export default function TrendChart({ data, period }: { data: TrendRow[]; period:
       <div className="card glass trend-card">
         <div className="card-header">
           <div>
-            <div className="card-title">Trend Online / Offline</div>
-            <div className="card-sub">ยังไม่มีข้อมูล</div>
+            <div className="card-title">{t('trend.title')}</div>
+            <div className="card-sub">{t('common.noData')}</div>
           </div>
           <button className="card-menu-btn"><MoreHorizontal size={14} /></button>
         </div>
-        <div className="chart-empty">ยังไม่มีข้อมูล</div>
+        <div className="chart-empty">{t('common.noData')}</div>
       </div>
     )
   }
@@ -149,8 +150,8 @@ export default function TrendChart({ data, period }: { data: TrendRow[]; period:
       <div className="card glass trend-card">
         <div className="card-header">
           <div>
-            <div className="card-title">สรุปวันนี้</div>
-            <div className="card-sub">Online vs Offline — ณ ปัจจุบัน</div>
+            <div className="card-title">{t('trend.today.title')}</div>
+            <div className="card-sub">{t('trend.today.sub')}</div>
           </div>
           <button className="card-menu-btn"><MoreHorizontal size={14} /></button>
         </div>
@@ -159,10 +160,10 @@ export default function TrendChart({ data, period }: { data: TrendRow[]; period:
     )
   }
 
-  const barData  = period === 'year' ? aggregateMonthly(data) : data
+  const barData  = period === 'year' ? aggregateMonthly(data, MONTHS[lang]) : data
   const maxVal   = Math.max(...barData.map((d) => Math.max(d.online_count, d.offline_count)), 1)
   const n        = barData.length
-  const subLabel = period === 'year' ? 'รายเดือน — hover เพื่อดูตัวเลข' : 'รายวัน — hover เพื่อดูตัวเลข'
+  const subLabel = period === 'year' ? t('trend.monthly') : t('trend.daily')
 
   const rates = barData.map((d) => {
     const t = d.online_count + d.offline_count
@@ -180,7 +181,7 @@ export default function TrendChart({ data, period }: { data: TrendRow[]; period:
 
   function getLabel(d: TrendRow & { label?: string }): string {
     if ('label' in d && d.label) return d.label
-    try { return format(new Date(d.day), 'd/M', { locale: th }) }
+    try { return format(new Date(d.day), 'd/M', { locale: lang === 'en' ? enUS : th }) }
     catch { return d.day }
   }
 
@@ -239,13 +240,13 @@ export default function TrendChart({ data, period }: { data: TrendRow[]; period:
       <div className="chart-legend">
         <div className="leg"><div className="leg-dot green-bg" />Online</div>
         <div className="leg"><div className="leg-dot red-bg" />Offline</div>
-        <span className="chart-peak">peak {maxVal}</span>
+        <span className="chart-peak">{t('trend.peak')} {maxVal}</span>
         <button
           className={`chart-overlay-btn ${showOverlay ? 'on' : ''}`}
           onClick={() => setShowOverlay((v) => !v)}
         >
           <TrendingUp size={10} strokeWidth={2.5} />
-          {showOverlay ? 'Hide overlay' : 'Show overlay'}
+          {showOverlay ? t('trend.hideOverlay') : t('trend.showOverlay')}
         </button>
       </div>
 
@@ -264,7 +265,7 @@ export default function TrendChart({ data, period }: { data: TrendRow[]; period:
           </div>
           <div className="ct-row">
             <div className="ct-dot" style={{ background: '#3B6CFF' }} />
-            <span className="ct-label">Online rate</span>
+            <span className="ct-label">{t('trend.onlineRate')}</span>
             <span className="ct-val">
               {(() => {
                 const t = tooltip.d.online_count + tooltip.d.offline_count

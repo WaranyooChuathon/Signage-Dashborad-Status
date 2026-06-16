@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { RefreshCw } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { useLang } from '@/lib/i18n/language-provider'
 import KpiCards from '@/components/dashboard/kpi-cards'
 import TrendChart from '@/components/dashboard/trend-chart'
 import OfflineList from '@/components/dashboard/offline-list'
@@ -24,6 +25,7 @@ export default function DashboardClient({
   initialTrend: TrendRow[]
   initialAllDevices: DeviceLog[]
 }) {
+  const { t } = useLang()
   const [summary, setSummary]     = useState(initialSummary)
   const [trend, setTrend]         = useState(initialTrend)
   const [allDevices, setAllDevices] = useState(initialAllDevices)
@@ -91,7 +93,7 @@ export default function DashboardClient({
       {syncing && (
         <div className="sync-banner">
           <div className="sync-spinner" />
-          กำลัง Sync ข้อมูลจาก Signage System... รอสักครู่
+          {t('dash.syncBanner')}
         </div>
       )}
 
@@ -103,7 +105,7 @@ export default function DashboardClient({
               className={`ptab ${period === p ? 'active' : ''}`}
               onClick={() => changePeriod(p)}
             >
-              {p === 'today' ? 'วันนี้' : p === 'week' ? 'สัปดาห์นี้' : p === 'month' ? 'เดือนนี้' : 'ปีนี้'}
+              {t(`dash.period.${p}`)}
             </button>
           ))}
         </div>
@@ -113,7 +115,7 @@ export default function DashboardClient({
           disabled={syncing}
         >
           <RefreshCw size={14} strokeWidth={2} className={syncing ? 'spin-icon' : ''} />
-          {syncing ? 'กำลัง Sync...' : 'Sync ตอนนี้'}
+          {syncing ? t('dash.syncing') : t('dash.sync')}
         </button>
       </div>
 

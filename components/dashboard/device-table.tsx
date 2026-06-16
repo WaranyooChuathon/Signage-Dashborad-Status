@@ -1,11 +1,13 @@
 'use client'
 
 import { useState } from 'react'
+import { useLang } from '@/lib/i18n/language-provider'
 import type { DeviceLog } from '@/types/database'
 
 const PAGE_SIZE = 10
 
 export default function DeviceTable({ devices }: { devices: DeviceLog[] }) {
+  const { t, lang } = useLang()
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState<'all' | 'Online' | 'Offline'>('all')
   const [page, setPage] = useState(0)
@@ -41,11 +43,11 @@ export default function DeviceTable({ devices }: { devices: DeviceLog[] }) {
       {/* Header + Filter + Search */}
       <div className="device-table-header">
         <div>
-          <div className="card-title">รายการอุปกรณ์ทั้งหมด</div>
+          <div className="card-title">{t('dt.title')}</div>
           <div className="card-sub">
-            แสดง {filtered.length} จาก {devices.length} เครื่อง
-            {search && ` · ค้นหา: "${search}"`}
-            {filter !== 'all' && ` · กรอง: ${filter}`}
+            {t('dt.showing', { n: filtered.length, m: devices.length })}
+            {search && ` · ${t('dt.searchTag')}: "${search}"`}
+            {filter !== 'all' && ` · ${t('dt.filterTag')}: ${filter}`}
           </div>
         </div>
 
@@ -56,7 +58,7 @@ export default function DeviceTable({ devices }: { devices: DeviceLog[] }) {
               className={`ptab ${filter === 'all' ? 'active' : ''}`}
               onClick={() => handleFilter('all')}
             >
-              ทั้งหมด
+              {t('dt.all')}
               <span style={{ marginLeft: '4px', opacity: 0.6, fontFamily: "'JetBrains Mono', monospace", fontSize: '10px' }}>
                 {devices.length}
               </span>
@@ -84,7 +86,7 @@ export default function DeviceTable({ devices }: { devices: DeviceLog[] }) {
           {/* Search */}
           <input
             className="table-search"
-            placeholder="ค้นหา Device..."
+            placeholder={t('dt.search')}
             value={search}
             onChange={(e) => handleSearch(e.target.value)}
           />
@@ -101,8 +103,8 @@ export default function DeviceTable({ devices }: { devices: DeviceLog[] }) {
               <th>Device ID</th>
               <th>Playlist</th>
               <th>Mode</th>
-              <th>สถานะ</th>
-              <th>Sync ล่าสุด</th>
+              <th>{t('dt.status')}</th>
+              <th>{t('dt.lastSync')}</th>
             </tr>
           </thead>
           <tbody>
@@ -113,8 +115,8 @@ export default function DeviceTable({ devices }: { devices: DeviceLog[] }) {
                   style={{ textAlign: 'center', padding: '40px', color: 'var(--t3)' }}
                 >
                   {search || filter !== 'all'
-                    ? '🔍 ไม่พบอุปกรณ์ที่ตรงกับเงื่อนไข'
-                    : 'ไม่มีข้อมูล'}
+                    ? t('dt.noMatch')
+                    : t('common.noData')}
                 </td>
               </tr>
             ) : (
@@ -139,7 +141,7 @@ export default function DeviceTable({ devices }: { devices: DeviceLog[] }) {
                   </td>
                   <td className="mono">
                     {d.scraped_timestamp
-                      ? new Date(d.scraped_timestamp).toLocaleString('th-TH', {
+                      ? new Date(d.scraped_timestamp).toLocaleString(lang === 'en' ? 'en-GB' : 'th-TH', {
                           day: '2-digit',
                           month: '2-digit',
                           hour: '2-digit',
@@ -162,7 +164,7 @@ export default function DeviceTable({ devices }: { devices: DeviceLog[] }) {
             onClick={() => setPage(Math.max(0, page - 1))}
             disabled={page === 0}
           >
-            ← ก่อนหน้า
+            {t('common.prev')}
           </button>
 
           <div className="page-numbers">
@@ -194,7 +196,7 @@ export default function DeviceTable({ devices }: { devices: DeviceLog[] }) {
             onClick={() => setPage(Math.min(totalPages - 1, page + 1))}
             disabled={page >= totalPages - 1}
           >
-            ถัดไป →
+            {t('common.next')}
           </button>
         </div>
       )}
