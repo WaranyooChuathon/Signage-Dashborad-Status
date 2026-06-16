@@ -12,33 +12,7 @@ export default function LoginForm() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [loading, setLoading] = useState(false)
-  const [view, setView] = useState<'login' | 'forgot'>('login')
-  const [resetEmail, setResetEmail] = useState('demo@smartsignage.app')
   const router = useRouter()
-
-  function switchView(v: 'login' | 'forgot') {
-    setError(''); setSuccess(''); setView(v)
-  }
-
-  async function handleForgot(e: React.FormEvent) {
-    e.preventDefault()
-    setError(''); setSuccess('')
-    if (!resetEmail) {
-      setError('กรุณากรอกอีเมล')
-      return
-    }
-    setLoading(true)
-    const supabase = createClient()
-    const { error: resetErr } = await supabase.auth.resetPasswordForEmail(resetEmail, {
-      redirectTo: `${window.location.origin}/reset-password`,
-    })
-    setLoading(false)
-    if (resetErr) {
-      setError(resetErr.message)
-      return
-    }
-    setSuccess(`ส่งลิงก์รีเซ็ตรหัสผ่านไปที่ ${resetEmail} แล้ว — โปรดตรวจอีเมล`)
-  }
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault()
@@ -139,123 +113,79 @@ export default function LoginForm() {
 
         {/* ── RIGHT PANEL ── */}
         <div className="right-panel">
-          <form className="form-card" onSubmit={view === 'login' ? handleLogin : handleForgot}>
-            <h2 className="form-title">{view === 'login' ? 'ยินดีต้อนรับ 👋' : 'รีเซ็ตรหัสผ่าน 🔑'}</h2>
-            <p className="form-sub">
-              {view === 'login'
-                ? 'เข้าสู่ระบบเพื่อจัดการ Smart Signage'
-                : 'กรอกอีเมลเพื่อรับลิงก์ตั้งรหัสผ่านใหม่'}
-            </p>
+          <form className="form-card" onSubmit={handleLogin}>
+            <h2 className="form-title">ยินดีต้อนรับ 👋</h2>
+            <p className="form-sub">เข้าสู่ระบบเพื่อจัดการ Smart Signage</p>
 
             {/* Error / Success */}
             {error && <div className="msg error">❌ {error}</div>}
             {success && <div className="msg success">✅ {success}</div>}
 
-            {view === 'login' ? (
-              <>
-                {/* Email */}
-                <div className="field">
-                  <label className="field-label">อีเมล</label>
-                  <input
-                    className="field-input"
-                    type="email"
-                    placeholder="demo@smartsignage.app"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    autoComplete="email"
-                  />
-                </div>
+            {/* Email */}
+            <div className="field">
+              <label className="field-label">อีเมล</label>
+              <input
+                className="field-input"
+                type="email"
+                placeholder="demo@smartsignage.app"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                autoComplete="email"
+              />
+            </div>
 
-                {/* Password */}
-                <div className="field">
-                  <label className="field-label">รหัสผ่าน</label>
-                  <input
-                    className="field-input"
-                    type={showPass ? 'text' : 'password'}
-                    placeholder="••••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    autoComplete="current-password"
-                  />
-                  <span className="field-eye" onClick={() => setShowPass(!showPass)}>
-                    {showPass ? '🙈' : '👁'}
-                  </span>
-                </div>
+            {/* Password */}
+            <div className="field">
+              <label className="field-label">รหัสผ่าน</label>
+              <input
+                className="field-input"
+                type={showPass ? 'text' : 'password'}
+                placeholder="••••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                autoComplete="current-password"
+              />
+              <span className="field-eye" onClick={() => setShowPass(!showPass)}>
+                {showPass ? '🙈' : '👁'}
+              </span>
+            </div>
 
-                {/* Remember + Forgot */}
-                <div className="field-row">
-                  <label className="remember">
-                    <input type="checkbox" defaultChecked /> จดจำฉันไว้
-                  </label>
-                  <span className="forgot-link" onClick={() => switchView('forgot')}>
-                    ลืมรหัสผ่าน?
-                  </span>
-                </div>
+            {/* Remember */}
+            <div className="field-row">
+              <label className="remember">
+                <input type="checkbox" defaultChecked /> จดจำฉันไว้
+              </label>
+            </div>
 
-                {/* Submit */}
-                <button
-                  type="submit"
-                  className={`btn-login ${loading ? 'loading' : ''}`}
-                  disabled={loading}
-                >
-                  {loading ? 'กำลังเข้าสู่ระบบ...' : 'เข้าสู่ระบบ'}
-                </button>
+            {/* Submit */}
+            <button
+              type="submit"
+              className={`btn-login ${loading ? 'loading' : ''}`}
+              disabled={loading}
+            >
+              {loading ? 'กำลังเข้าสู่ระบบ...' : 'เข้าสู่ระบบ'}
+            </button>
 
-                {/* Demo bypass */}
-                <button
-                  type="button"
-                  onClick={handleDemo}
-                  disabled={loading}
-                  style={{
-                    marginTop: 12, width: '100%', padding: '13px',
-                    borderRadius: 12, border: '1px solid rgba(126,148,216,.5)',
-                    background: 'rgba(126,148,216,.12)', color: '#cdd6f4',
-                    fontSize: 14, fontWeight: 600, cursor: 'pointer',
-                  }}
-                >
-                  🚀 เข้าชม Live Demo (ไม่ต้องล็อกอิน)
-                </button>
-                <p style={{
-                  marginTop: 12, fontSize: 11, textAlign: 'center',
-                  color: 'rgba(205,214,244,.55)', lineHeight: 1.6,
-                }}>
-                  โหมดสาธิต · ข้อมูลทั้งหมดเป็นตัวอย่าง — ใส่อีเมล/รหัสผ่านอะไรก็เข้าได้
-                </p>
-              </>
-            ) : (
-              <>
-                {/* Reset email */}
-                <div className="field">
-                  <label className="field-label">อีเมล</label>
-                  <input
-                    className="field-input"
-                    type="email"
-                    placeholder="you@example.com"
-                    value={resetEmail}
-                    onChange={(e) => setResetEmail(e.target.value)}
-                    autoComplete="email"
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  className={`btn-login ${loading ? 'loading' : ''}`}
-                  disabled={loading}
-                >
-                  {loading ? 'กำลังส่ง...' : 'ส่งลิงก์รีเซ็ตรหัสผ่าน'}
-                </button>
-
-                <p
-                  style={{
-                    marginTop: 16, fontSize: 13, textAlign: 'center',
-                    color: '#cdd6f4', cursor: 'pointer',
-                  }}
-                  onClick={() => switchView('login')}
-                >
-                  ← กลับไปเข้าสู่ระบบ
-                </p>
-              </>
-            )}
+            {/* Demo bypass */}
+            <button
+              type="button"
+              onClick={handleDemo}
+              disabled={loading}
+              style={{
+                marginTop: 12, width: '100%', padding: '13px',
+                borderRadius: 12, border: '1px solid rgba(126,148,216,.5)',
+                background: 'rgba(126,148,216,.12)', color: '#cdd6f4',
+                fontSize: 14, fontWeight: 600, cursor: 'pointer',
+              }}
+            >
+              🚀 เข้าชม Live Demo (ไม่ต้องล็อกอิน)
+            </button>
+            <p style={{
+              marginTop: 12, fontSize: 11, textAlign: 'center',
+              color: 'rgba(205,214,244,.55)', lineHeight: 1.6,
+            }}>
+              โหมดสาธิต · ข้อมูลทั้งหมดเป็นตัวอย่าง — ใส่อีเมล/รหัสผ่านอะไรก็เข้าได้
+            </p>
           </form>
         </div>
       </div>

@@ -33,11 +33,9 @@ export async function proxy(request: NextRequest) {
   )
 
   const { data: { user } } = await supabase.auth.getUser()
-  // public routes: login + reset-password (recovery token มาทาง URL hash ที่ server มองไม่เห็น)
-  const { pathname } = request.nextUrl
-  const isPublic = pathname.startsWith('/login') || pathname.startsWith('/reset-password')
+  const isLoginPage = request.nextUrl.pathname.startsWith('/login')
 
-  if (!user && !isPublic) {
+  if (!user && !isLoginPage) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
     const redirectResponse = NextResponse.redirect(url)

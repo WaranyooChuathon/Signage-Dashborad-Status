@@ -86,10 +86,6 @@ export function createMockClient() {
       async updateUser(_attrs?: Record<string, unknown>) {
         return { data: { user: DEMO_USER }, error: null as MockError }
       },
-      // โหมด mock: จำลองส่งลิงก์รีเซ็ตรหัสผ่าน (ไม่ส่งอีเมลจริง)
-      async resetPasswordForEmail(_email?: string, _opts?: Record<string, unknown>) {
-        return { data: {}, error: null as MockError }
-      },
       async signOut() {
         return { error: null }
       },
