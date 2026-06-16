@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import { useLang } from '@/lib/i18n/language-provider'
 import { Users, UserCheck, UserX, Shield, Pencil, Ban, CheckCircle2, Trash2, Plus } from 'lucide-react'
 import type { Profile } from '@/types/database'
+import { avatarFor } from '@/lib/ui/avatars'
 import UserModal from './user-modal'
 import DeleteModal from './delete-modal'
 import './users.css'
@@ -102,10 +103,6 @@ export default function UserManagementClient({ initialUsers }: { initialUsers: P
     super_admin: { cls: 'role-sa', label: 'Super Admin', gradient: 'linear-gradient(135deg,#4338CA,#6366F1)' },
     admin:       { cls: 'role-a',  label: 'Admin',       gradient: 'linear-gradient(135deg,#1F3FA8,#3B6CFF)' },
     viewer:      { cls: 'role-v',  label: 'Viewer',      gradient: 'linear-gradient(135deg,#6B7799,#98A2BD)' },
-  }
-
-  function getInitials(name: string) {
-    return name.split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase()
   }
 
   return (
@@ -213,8 +210,8 @@ export default function UserManagementClient({ initialUsers }: { initialUsers: P
                     <tr key={u.id}>
                       <td>
                         <div className="um-user-cell">
-                          <div className="um-avatar" style={{ background: ri.gradient }}>
-                            {getInitials(u.full_name ?? u.email ?? '?')}
+                          <div className="um-avatar">
+                            <img src={avatarFor(u.email ?? u.id)} alt="" />
                           </div>
                           <div>
                             <div className="um-uname">{u.full_name ?? '—'}</div>

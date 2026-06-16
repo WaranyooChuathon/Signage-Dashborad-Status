@@ -91,10 +91,7 @@ export default function LoginForm() {
 
         <div className="lv-brand">
           <span className="lv-brand-icon" aria-hidden="true">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="2.5" y="4" width="19" height="13" rx="2" />
-              <path d="M8 21h8M12 17v4" />
-            </svg>
+            <img src="/icon/logo-signage/signage-icon-128x128.png" alt="" />
           </span>
           <span className="lv-brand-text">
             <span className="lv-brand-name">{t('login.brandName')}</span>

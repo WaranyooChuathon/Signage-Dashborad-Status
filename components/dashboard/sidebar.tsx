@@ -8,8 +8,11 @@ import { useLang } from '@/lib/i18n/language-provider'
 import type { DictKey } from '@/lib/i18n/dict'
 import {
   LayoutDashboard, Monitor, BarChart2,
-  Users, Settings, LogOut, Search, Tv,
+  Users, Settings, LogOut, Search,
 } from 'lucide-react'
+import { avatarFor } from '@/lib/ui/avatars'
+
+const LOGO_SRC = '/icon/logo-signage/signage-icon-128x128.png'
 
 const navItems: {
   labelKey: DictKey
@@ -37,16 +40,12 @@ const allItems = navItems.flatMap((s) => s.items)
 export default function Sidebar() {
   const pathname = usePathname()
   const { t }    = useLang()
-  const [userEmail,   setUserEmail]   = useState<string | null>(null)
-  const [userInitial, setUserInitial] = useState('A')
+  const [userEmail, setUserEmail] = useState<string | null>(null)
 
   useEffect(() => {
     const supabase = createClient()
     supabase.auth.getUser().then(({ data }) => {
-      if (data.user?.email) {
-        setUserEmail(data.user.email)
-        setUserInitial(data.user.email[0].toUpperCase())
-      }
+      if (data.user?.email) setUserEmail(data.user.email)
     })
   }, [])
 
@@ -63,7 +62,7 @@ export default function Sidebar() {
       {/* ── Slim rail ── */}
       <div className="sb-rail">
         <div className="sb-rail-mark">
-          <Tv size={18} strokeWidth={1.6} color="#fff" />
+          <img src={LOGO_SRC} alt="Smart Signage" />
         </div>
 
         {allItems.map(({ href, Icon, key }) => {
@@ -83,7 +82,7 @@ export default function Sidebar() {
         <div className="sb-rail-spacer" />
 
         <div className="sb-rail-avatar">
-          {userInitial}
+          <img src={avatarFor(userEmail)} alt="" />
           <div className="sb-rail-avatar-dot" />
         </div>
       </div>
@@ -92,7 +91,7 @@ export default function Sidebar() {
       <div className="sb-panel">
         <div className="sb-brand">
           <div className="sb-icon">
-            <Tv size={16} strokeWidth={2} color="#fff" />
+            <img src={LOGO_SRC} alt="Smart Signage" />
           </div>
           <div>
             <div className="sb-name">Smart Signage</div>
@@ -135,7 +134,7 @@ export default function Sidebar() {
 
         <div className="sb-footer">
           <div className="sb-user">
-            <div className="sb-avatar">{userInitial}</div>
+            <div className="sb-avatar"><img src={avatarFor(userEmail)} alt="" /></div>
             <div className="sb-user-info">
               <div className="sb-uname">{userEmail ?? '—'}</div>
               <div className="sb-urole">{t('sb.role')}</div>
