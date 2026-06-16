@@ -36,7 +36,8 @@ export default function SettingsClient({ initialProfile }: { initialProfile: Pro
   const [org, setOrg]           = useState(initialProfile.organization ?? '')
   const [savingProfile, setSavingProfile] = useState(false)
 
-  // ── Password ──
+  // ── Password ── (ซ่อนช่องไว้ก่อน ต้องกดปุ่มเปิด เพราะเป็นข้อมูลอ่อนไหว)
+  const [pwOpen, setPwOpen] = useState(false)
   const [pw, setPw]         = useState('')
   const [pw2, setPw2]       = useState('')
   const [showPw, setShowPw] = useState(false)
@@ -109,8 +110,12 @@ export default function SettingsClient({ initialProfile }: { initialProfile: Pro
       showToast(error.message, 'error')
     } else {
       showToast('เปลี่ยนรหัสผ่านสำเร็จ', 'success')
-      setPw(''); setPw2(''); setShowPw(false)
+      setPw(''); setPw2(''); setShowPw(false); setPwOpen(false)
     }
+  }
+
+  function cancelPassword() {
+    setPw(''); setPw2(''); setShowPw(false); setPwOpen(false)
   }
 
   // ── Appearance / Noti handlers ──
@@ -192,49 +197,66 @@ export default function SettingsClient({ initialProfile }: { initialProfile: Pro
           <div className="set-card-icon"><Lock size={18} strokeWidth={1.8} /></div>
           <div>
             <div className="set-card-title">เปลี่ยนรหัสผ่าน</div>
-            <div className="set-card-sub">อย่างน้อย 8 ตัวอักษร</div>
-          </div>
-        </div>
-
-        <div className="set-form-grid">
-          <div className="set-field">
-            <label className="set-label">รหัสผ่านใหม่</label>
-            <div className="set-pw-wrap">
-              <input
-                className="set-input"
-                type={showPw ? 'text' : 'password'}
-                value={pw}
-                onChange={(e) => setPw(e.target.value)}
-                placeholder="••••••••"
-              />
-              <button
-                type="button"
-                className="set-pw-btn"
-                onClick={() => setShowPw((v) => !v)}
-                title={showPw ? 'ซ่อนรหัสผ่าน' : 'แสดงรหัสผ่าน'}
-              >
-                {showPw ? <EyeOff size={14} /> : <Eye size={14} />}
-              </button>
+            <div className="set-card-sub">
+              {pwOpen ? 'อย่างน้อย 8 ตัวอักษร' : 'ปกป้องบัญชีของคุณด้วยรหัสผ่านที่รัดกุม'}
             </div>
           </div>
-          <div className="set-field">
-            <label className="set-label">ยืนยันรหัสผ่านใหม่</label>
-            <input
-              className="set-input"
-              type={showPw ? 'text' : 'password'}
-              value={pw2}
-              onChange={(e) => setPw2(e.target.value)}
-              placeholder="••••••••"
-            />
-          </div>
         </div>
 
-        <div className="set-actions">
-          <button className="set-btn-primary" onClick={changePassword} disabled={savingPw}>
-            <Lock size={14} strokeWidth={2} />
-            {savingPw ? 'กำลังเปลี่ยน...' : 'เปลี่ยนรหัสผ่าน'}
-          </button>
-        </div>
+        {!pwOpen ? (
+          <div className="set-actions" style={{ marginTop: 0 }}>
+            <button className="set-btn-secondary" onClick={() => setPwOpen(true)}>
+              <Lock size={14} strokeWidth={2} />
+              เปลี่ยนรหัสผ่าน
+            </button>
+          </div>
+        ) : (
+          <>
+            <div className="set-form-grid">
+              <div className="set-field">
+                <label className="set-label">รหัสผ่านใหม่</label>
+                <div className="set-pw-wrap">
+                  <input
+                    className="set-input"
+                    type={showPw ? 'text' : 'password'}
+                    value={pw}
+                    onChange={(e) => setPw(e.target.value)}
+                    placeholder="••••••••"
+                    autoFocus
+                  />
+                  <button
+                    type="button"
+                    className="set-pw-btn"
+                    onClick={() => setShowPw((v) => !v)}
+                    title={showPw ? 'ซ่อนรหัสผ่าน' : 'แสดงรหัสผ่าน'}
+                  >
+                    {showPw ? <EyeOff size={14} /> : <Eye size={14} />}
+                  </button>
+                </div>
+              </div>
+              <div className="set-field">
+                <label className="set-label">ยืนยันรหัสผ่านใหม่</label>
+                <input
+                  className="set-input"
+                  type={showPw ? 'text' : 'password'}
+                  value={pw2}
+                  onChange={(e) => setPw2(e.target.value)}
+                  placeholder="••••••••"
+                />
+              </div>
+            </div>
+
+            <div className="set-actions" style={{ gap: 8 }}>
+              <button className="set-btn-secondary" onClick={cancelPassword} disabled={savingPw}>
+                ยกเลิก
+              </button>
+              <button className="set-btn-primary" onClick={changePassword} disabled={savingPw}>
+                <Lock size={14} strokeWidth={2} />
+                {savingPw ? 'กำลังเปลี่ยน...' : 'บันทึกรหัสผ่านใหม่'}
+              </button>
+            </div>
+          </>
+        )}
       </section>
 
       {/* ── Appearance ── */}
