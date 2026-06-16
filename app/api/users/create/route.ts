@@ -9,6 +9,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'กรุณากรอกข้อมูลให้ครบ' }, { status: 400 })
   }
 
+  // กันยกระดับสิทธิ์: รับได้แค่ admin/viewer เท่านั้น (UI bypass ไม่ได้)
+  // super_admin ตั้งได้จาก seed/DB โดยตรงเท่านั้น
+  const safeRole = role === 'admin' ? 'admin' : 'viewer'
+
   // โหมด demo (ไม่มี backend จริง) — ตอบสำเร็จเฉย ๆ
   if (!hasSupabaseEnv || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
     return NextResponse.json({
@@ -42,7 +46,7 @@ export async function POST(request: Request) {
     email,
     full_name,
     organization,
-    role: role || 'viewer',
+    role: safeRole,
     status: status || 'active',
   })
   if (profileError) {

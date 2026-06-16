@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Users, UserCheck, UserX, Shield, Pencil, Ban, CheckCircle2, Trash2, Plus } from 'lucide-react'
 import type { Profile } from '@/types/database'
@@ -18,6 +18,13 @@ export default function UserManagementClient({ initialUsers }: { initialUsers: P
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [deleteUser, setDeleteUser] = useState<Profile | null>(null)
   const [toast, setToast] = useState<{ msg: string; type: 'success' | 'error' } | null>(null)
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null)
+
+  // รู้ว่าตอนนี้ใคร login อยู่ → ล็อก row ของตัวเองไม่ให้ลบ/ระงับ/แก้ (กัน demo พังตัวเอง)
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.auth.getUser().then(({ data }) => setCurrentUserId(data.user?.id ?? null))
+  }, [])
 
   function showToast(msg: string, type: 'success' | 'error') {
     setToast({ msg, type })
@@ -237,8 +244,10 @@ export default function UserManagementClient({ initialUsers }: { initialUsers: P
                           : '—'}
                       </td>
                       <td>
-                        {u.role === 'super_admin' ? (
-                          <span style={{ fontSize: '10px', color: 'var(--muted-2)' }}>แก้ไขไม่ได้</span>
+                        {u.role === 'super_admin' || u.id === currentUserId ? (
+                          <span style={{ fontSize: '10px', color: 'var(--muted-2)' }}>
+                            {u.id === currentUserId ? 'บัญชีของคุณ' : 'แก้ไขไม่ได้'}
+                          </span>
                         ) : (
                           <div className="um-actions">
                             <button className="um-act um-act-edit" onClick={() => { setEditUser(u); setModalOpen(true); }}>

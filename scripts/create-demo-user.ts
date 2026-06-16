@@ -66,7 +66,9 @@ async function main() {
     id: userId,
     email: DEMO_EMAIL,
     full_name: 'Demo Admin',
-    role: 'super_admin',
+    // role = admin (ไม่ใช่ super_admin) — demo เปิดให้คนนอก login ได้
+    // จึงให้สิทธิ์พอโชว์งานแต่ไม่ใช่ godmode + ล็อกบัญชีนี้ใน User Management
+    role: 'admin',
     organization: 'Aurora City',
     status: 'active',
     last_login: new Date().toISOString(),

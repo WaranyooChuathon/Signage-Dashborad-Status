@@ -174,8 +174,8 @@ export default function UserModal({
 
           <div className="um-field">
             <label className="um-flabel">Role</label>
+            {/* ไม่ให้เลือก super_admin จาก UI — กันผู้เข้าชม demo ยกระดับเป็น godmode */}
             <select className="um-fselect" value={role} onChange={(e) => setRole(e.target.value)}>
-              <option value="super_admin">Super Admin</option>
               <option value="admin">Admin</option>
               <option value="viewer">Viewer</option>
             </select>

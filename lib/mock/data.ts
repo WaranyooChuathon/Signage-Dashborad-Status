@@ -169,13 +169,13 @@ export function getUptime(days: number = 7): UptimeRow[] {
 // ── Profiles (User Management) ──
 // store ระดับ module — mutate ได้ในระหว่าง session (รีเซ็ตเมื่อ reload เต็มหน้า)
 const SEED_PROFILES: Profile[] = [
-  { id: 'u-001', email: 'demo@smartsignage.app',  full_name: 'Demo Admin',     role: 'super_admin', organization: ORG, status: 'active',    created_at: '2025-09-01T08:00:00Z', last_login: '2026-06-15T07:45:00Z' },
+  { id: 'u-001', email: 'demo@smartsignage.app',  full_name: 'Demo Admin',     role: 'admin',       organization: ORG, status: 'active',    created_at: '2025-09-01T08:00:00Z', last_login: '2026-06-15T07:45:00Z' },
   { id: 'u-002', email: 'nida.k@smartsignage.app', full_name: 'Nida Kittisak',  role: 'admin',       organization: ORG, status: 'active',    created_at: '2025-10-12T09:30:00Z', last_login: '2026-06-14T18:20:00Z' },
   { id: 'u-003', email: 'arthit.p@smartsignage.app', full_name: 'Arthit Pongsai', role: 'admin',     organization: ORG, status: 'active',    created_at: '2025-11-03T10:15:00Z', last_login: '2026-06-13T11:05:00Z' },
   { id: 'u-004', email: 'ploy.s@smartsignage.app', full_name: 'Ploy Suwanna',   role: 'viewer',      organization: ORG, status: 'active',    created_at: '2026-01-20T14:00:00Z', last_login: '2026-06-12T09:40:00Z' },
   { id: 'u-005', email: 'kevin.t@smartsignage.app', full_name: 'Kevin Tan',     role: 'viewer',      organization: 'Tenant Partners', status: 'active', created_at: '2026-02-08T13:25:00Z', last_login: '2026-06-10T16:10:00Z' },
   { id: 'u-006', email: 'mali.j@smartsignage.app', full_name: 'Mali Jindarat',  role: 'viewer',      organization: ORG, status: 'suspended', created_at: '2026-03-15T11:00:00Z', last_login: '2026-05-28T08:55:00Z' },
-  { id: 'u-007', email: 'somchai.w@smartsignage.app', full_name: 'Somchai Wong', role: 'admin',      organization: ORG, status: 'active',    created_at: '2026-04-02T15:45:00Z', last_login: '2026-06-15T06:30:00Z' },
+  { id: 'u-007', email: 'somchai.w@smartsignage.app', full_name: 'Somchai Wong', role: 'super_admin', organization: ORG, status: 'active',    created_at: '2026-04-02T15:45:00Z', last_login: '2026-06-15T06:30:00Z' },
   { id: 'u-008', email: 'rina.m@smartsignage.app', full_name: 'Rina Maneerat',  role: 'viewer',      organization: 'Tenant Partners', status: 'suspended', created_at: '2026-04-22T09:10:00Z', last_login: '2026-05-19T12:00:00Z' },
 ]
 
