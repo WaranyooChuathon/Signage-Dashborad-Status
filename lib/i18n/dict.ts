@@ -155,7 +155,8 @@ const th = {
   'dt.search': 'ค้นหา Device...',
 
   // ── demo banner ──
-  'banner.note': 'ข้อมูลทั้งหมดเป็นตัวอย่าง — ไม่เชื่อมต่อฐานข้อมูลจริง',
+  'banner.note': 'ข้อมูลตัวอย่างเพื่อการสาธิต · ไม่ได้เชื่อมต่อฐานข้อมูลจริง',
+  'banner.noteReal': 'เชื่อมต่อกับฐานข้อมูล Supabase · ข้อมูลตัวอย่างเพื่อการสาธิต',
   'banner.by': 'ผลงานโดย',
 
   // ── devices page ──
@@ -422,7 +423,8 @@ const en: Record<DictKey, string> = {
   'dt.search': 'Search devices...',
 
   // ── demo banner ──
-  'banner.note': 'All data is sample — not connected to a real database',
+  'banner.note': 'Sample data for demonstration · not connected to a live database',
+  'banner.noteReal': 'Connected to a live Supabase database · sample data for demonstration',
   'banner.by': 'Built by',
 
   // ── devices page ──
