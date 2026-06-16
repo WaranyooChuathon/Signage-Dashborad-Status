@@ -92,7 +92,7 @@
     rgba(244,247,252,.92) 100%);
 }
 
-/* brand บนซ้าย — ใช้ ink เข้มเสมอ (ภาพสว่างทั้งสองธีม) */
+/* brand บนซ้าย — light = ink เข้มบนภาพสว่าง; dark = override เป็นสีอ่อน (ดูบล็อก DARK) */
 .lv-brand {
   position: relative;
   z-index: 2;
@@ -149,6 +149,25 @@
   color: #334067;
   max-width: 440px;
 }
+
+/* ── visual panel · DARK ── สลับภาพเป็นเวอร์ชันมืด + scrim/ตัวอักษรโทนสว่าง */
+.login-page.dark .login-visual {
+  background: #0A1020;
+  border-right-color: #1E2856;
+}
+.login-page.dark .lv-image {
+  background-image: url('/Image/Signage-Status-Login_Long-Dark.png');
+}
+.login-page.dark .lv-scrim {
+  background: linear-gradient(180deg,
+    rgba(7,12,32,0) 30%,
+    rgba(7,12,32,.45) 60%,
+    rgba(7,12,32,.92) 100%);
+}
+.login-page.dark .lv-brand-name { color: #EAF0FF; }
+.login-page.dark .lv-brand-sub  { color: #94A3C8; }
+.login-page.dark .lv-headline   { color: #EAF0FF; }
+.login-page.dark .lv-desc       { color: #AAB6D9; }
 
 /* ════════ RIGHT — FORM PANEL ════════ */
 .login-form-wrap {
