@@ -435,6 +435,12 @@
 .section-grid .online-list {
   flex: 1;
   overflow-y: auto;
+  /* hover ของ item ใช้ translateX(4px) → ถ้า overflow-x เป็น visible (ซึ่ง spec
+     บังคับให้กลายเป็น auto เมื่อ overflow-y ไม่ใช่ visible) จะเกิด horizontal
+     scrollbar ชั่วขณะ แล้วดัน layout. clip กันไม่ให้ scrollbar โผล่ */
+  overflow-x: clip;
+  /* จองที่ vertical scrollbar ไว้เสมอ กัน layout shift ตอนสลับหน้า/มีรายการเกิน */
+  scrollbar-gutter: stable;
   min-height: 0;
 }
 

@@ -2,11 +2,14 @@ import { NextResponse } from 'next/server'
 import { hasSupabaseEnv } from '@/lib/supabase/config'
 import { getDevices } from '@/lib/mock/data'
 
-// "Sync ตอนนี้" — จำลองการรัน scraper หนึ่งรอบ
+// cron/manual ต้องรันสดทุกครั้ง ห้าม cache ผลลัพธ์
+export const dynamic = 'force-dynamic'
+
+// รัน scraper จำลองหนึ่งรอบ — ใช้ร่วมกันทั้งปุ่ม "Sync ตอนนี้" (POST) และ cron รายวัน (GET)
 //  • mock (ไม่มี service_role): generator เป็น static → ตอบสำเร็จเฉย ๆ
 //  • real (มี service_role): เขียน snapshot ปัจจุบันของทุก device เข้า device_logs
 //    → get_latest_status คืนข้อม+ เวลาใหม่จริง (ข้อมูลสมมติล้วน, company-safe)
-export async function POST() {
+async function runSync() {
   const now = Date.now()
   const ts = new Date(now).toISOString()
 
@@ -54,4 +57,20 @@ export async function POST() {
     message: `Sync สำเร็จ — บันทึก snapshot ${rows.length} อุปกรณ์`,
     lastSync: ts,
   })
+}
+
+// ปุ่ม "Sync ตอนนี้" บนหน้า dashboard (เรียกจาก client ผ่าน fetch)
+export async function POST() {
+  return runSync()
+}
+
+// Vercel Cron รายวัน (ดู vercel.json) — เรียกผ่าน GET แล้วเขียน snapshot ใหม่ของวันนั้น ๆ
+// ป้องกันด้วย CRON_SECRET: ถ้าตั้ง env ไว้ จะรับเฉพาะ request ที่มี Authorization ตรงกัน
+// (ถ้าไม่ตั้ง — เช่น dev/mock — ปล่อยผ่าน เพื่อไม่ให้โหมด mock พัง)
+export async function GET(request: Request) {
+  const secret = process.env.CRON_SECRET
+  if (secret && request.headers.get('authorization') !== `Bearer ${secret}`) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+  return runSync()
 }
