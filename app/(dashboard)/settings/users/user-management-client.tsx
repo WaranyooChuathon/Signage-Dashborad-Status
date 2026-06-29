@@ -22,11 +22,16 @@ export default function UserManagementClient({ initialUsers }: { initialUsers: P
   const [deleteUser, setDeleteUser] = useState<Profile | null>(null)
   const [toast, setToast] = useState<{ msg: string; type: 'success' | 'error' } | null>(null)
   const [currentUserId, setCurrentUserId] = useState<string | null>(null)
+  const [currentUserEmail, setCurrentUserEmail] = useState<string | null>(null)
 
   // รู้ว่าตอนนี้ใคร login อยู่ → ล็อก row ของตัวเองไม่ให้ลบ/ระงับ/แก้ (กัน demo พังตัวเอง)
+  // เก็บทั้ง id และ email: real mode profile.id อาจไม่ตรง auth uid → เทียบ email สำรอง
   useEffect(() => {
     const supabase = createClient()
-    supabase.auth.getUser().then(({ data }) => setCurrentUserId(data.user?.id ?? null))
+    supabase.auth.getUser().then(({ data }) => {
+      setCurrentUserId(data.user?.id ?? null)
+      setCurrentUserEmail(data.user?.email ?? null)
+    })
   }, [])
 
   function showToast(msg: string, type: 'success' | 'error') {
@@ -206,6 +211,9 @@ export default function UserManagementClient({ initialUsers }: { initialUsers: P
                 filtered.map((u) => {
                   const ri = roleInfo[u.role] ?? roleInfo.viewer
                   const isActive = u.status === 'active'
+                  const isSelf =
+                    (currentUserId !== null && u.id === currentUserId) ||
+                    (currentUserEmail !== null && u.email === currentUserEmail)
                   return (
                     <tr key={u.id}>
                       <td>
@@ -243,9 +251,9 @@ export default function UserManagementClient({ initialUsers }: { initialUsers: P
                           : '—'}
                       </td>
                       <td>
-                        {u.role === 'super_admin' || u.id === currentUserId ? (
+                        {u.role === 'super_admin' || isSelf ? (
                           <span style={{ fontSize: '10px', color: 'var(--muted-2)' }}>
-                            {u.id === currentUserId ? t('um.yourAccount') : t('um.locked')}
+                            {isSelf ? t('um.yourAccount') : t('um.locked')}
                           </span>
                         ) : (
                           <div className="um-actions">
