@@ -14,13 +14,30 @@
 
 ## ภาพตัวอย่าง
 
-![Dashboard](docs/02-dashboard.png)
+รองรับธีม **มืด (dark)** และ **สว่าง (light)** ทั้งระบบ (สลับได้จาก topbar):
 
-| Login Showcase | Reports |
+| 🌙 Dark | ☀️ Light |
+|:--:|:--:|
+| ![Dashboard — dark](docs/02-dashboard.png) | ![Dashboard — light](docs/02-dashboard-light.png) |
+
+| Login | Reports |
 |:--:|:--:|
 | ![Login](docs/01-login.png) | ![Reports](docs/03-reports.png) |
 | **Device List + Side Panel** | **User Management** |
 | ![Devices](docs/04-devices.png) | ![Users](docs/05-users.png) |
+
+<details>
+<summary>☀️ <b>ธีมสว่าง (Light mode)</b> — ทุกหน้า</summary>
+
+<br>
+
+| Login | Reports |
+|:--:|:--:|
+| ![Login — light](docs/01-login-light.png) | ![Reports — light](docs/03-reports-light.png) |
+| **Device List + Side Panel** | **User Management** |
+| ![Devices — light](docs/04-devices-light.png) | ![Users — light](docs/05-users-light.png) |
+
+</details>
 
 ## ภาพรวม
 

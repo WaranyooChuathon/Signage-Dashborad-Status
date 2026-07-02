@@ -14,13 +14,30 @@ English · **[ภาษาไทย](README-TH.md)**
 
 ## Screenshots
 
-![Dashboard](docs/02-dashboard.png)
+The dashboard ships with a system-wide **dark** and **light** theme (toggle in the topbar):
 
-| Login Showcase | Reports |
+| 🌙 Dark | ☀️ Light |
+|:--:|:--:|
+| ![Dashboard — dark](docs/02-dashboard.png) | ![Dashboard — light](docs/02-dashboard-light.png) |
+
+| Login | Reports |
 |:--:|:--:|
 | ![Login](docs/01-login.png) | ![Reports](docs/03-reports.png) |
 | **Device List + Side Panel** | **User Management** |
 | ![Devices](docs/04-devices.png) | ![Users](docs/05-users.png) |
+
+<details>
+<summary>☀️ <b>Light mode</b> — all pages</summary>
+
+<br>
+
+| Login | Reports |
+|:--:|:--:|
+| ![Login — light](docs/01-login-light.png) | ![Reports — light](docs/03-reports-light.png) |
+| **Device List + Side Panel** | **User Management** |
+| ![Devices — light](docs/04-devices-light.png) | ![Users — light](docs/05-users-light.png) |
+
+</details>
 
 ## Overview
 
